@@ -163,7 +163,7 @@ function getPublicBaseUrl(): string {
 }
 
 function buildReturnUrl(baseUrl: string, result: "success" | "failure", orderId: string): string {
-  const url = new URL("/deposit", baseUrl);
+  const url = new URL("/my-page/deposit", baseUrl);
   url.searchParams.set("soleaspayReturn", result);
   url.searchParams.set("orderId", orderId);
   return url.toString();

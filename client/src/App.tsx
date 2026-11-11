@@ -80,7 +80,7 @@ function BankerRoute({ children }: { children: React.ReactNode }) {
   if (isLoading) return <PageLoading />;
 
   if (!user) return <Redirect to="/login" />;
-  if (!(user as any).isBanker && !user.isAdmin) return <Redirect to="/my-page" />;
+  if (!(user as any).isBanker && !user.isAdmin) return <Redirect to="/my-page/home" />;
 
   return <>{children}</>;
 }
@@ -91,7 +91,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   if (isLoading) return <PageLoading />;
 
   if (!user || !user.isAdmin) {
-    return <Redirect to="/my-page" />;
+    return <Redirect to="/my-page/home" />;
   }
 
   return <>{children}</>;
@@ -103,22 +103,60 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   if (isLoading) return <PageLoading />;
 
   if (user) {
-    return <Redirect to="/my-page" />;
+    return <Redirect to="/my-page/home" />;
   }
 
   return <>{children}</>;
 }
 
+function RedirectWithCurrentQuery({ to }: { to: string }) {
+  return <Redirect to={`${to}${window.location.search}`} />;
+}
+
+const legacyPrivateRoutes: Array<[string, string]> = [
+  ["/", "/my-page/home"],
+  ["/my-page", "/my-page/home"],
+  ["/tasks", "/my-page/tasks"],
+  ["/invest", "/my-page/invest"],
+  ["/products", "/my-page/products"],
+  ["/orders", "/my-page/income"],
+  ["/team", "/my-page/team"],
+  ["/my-products", "/my-page/income"],
+  ["/account", "/my-page/account"],
+  ["/personal-information", "/my-page/personal-information"],
+  ["/bind-wallet", "/my-page/bind-wallet"],
+  ["/deposit", "/my-page/deposit"],
+  ["/robotpay", "/my-page/robotpay"],
+  ["/withdrawal", "/my-page/withdrawal"],
+  ["/deposit-history", "/my-page/deposits-history"],
+  ["/deposits-history", "/my-page/deposits-history"],
+  ["/history", "/my-page/history"],
+  ["/withdrawal-history", "/my-page/withdrawal-history"],
+  ["/deposit-orders", "/my-page/deposit-orders"],
+  ["/service", "/my-page/service"],
+  ["/messages", "/my-page/messages"],
+  ["/wallet", "/my-page/wallet"],
+  ["/income", "/my-page/income"],
+  ["/share", "/my-page/share"],
+  ["/change-password", "/my-page/change-password"],
+  ["/about", "/my-page/about"],
+  ["/rules", "/my-page/rules"],
+  ["/gift-code", "/my-page/gift-code"],
+  ["/team-details", "/my-page/team-details"],
+  ["/daily-bonus", "/my-page/daily-bonus"],
+  ["/salary-bonus", "/my-page/salary-bonus"],
+];
+
 function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const usesWhiteAccountShell = [
-    "/account",
-    "/personal-information",
-    "/bind-wallet",
-    "/change-password",
-    "/about",
-    "/rules",
-    "/messages",
+    "/my-page/account",
+    "/my-page/personal-information",
+    "/my-page/bind-wallet",
+    "/my-page/change-password",
+    "/my-page/about",
+    "/my-page/rules",
+    "/my-page/messages",
   ].includes(location);
 
   return (
@@ -131,13 +169,13 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 
 function BrandThemeScope({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const isDashboard = location === "/my-page";
+  const isDashboard = location === "/my-page/home";
   return <div className={!isDashboard ? "equinor-theme" : undefined}>{children}</div>;
 }
 
 function FloatingGiftCodeButtonOnHome() {
   const [location] = useLocation();
-  return location === "/my-page" ? <FloatingSupport /> : null;
+  return location === "/my-page/home" ? <FloatingSupport /> : null;
 }
 
 function Router() {
@@ -168,185 +206,185 @@ function Router() {
           <RegisterPage />
         </PublicRoute>
       </Route>
-      <Route path="/my-page">
+      <Route path="/my-page/home">
         <ProtectedRoute>
           <AppLayout>
             <HomePage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/">
-        <Redirect to={`/my-page${window.location.search}`} />
+      <Route path="/my-page">
+        <RedirectWithCurrentQuery to="/my-page/home" />
       </Route>
-      <Route path="/tasks">
+      <Route path="/my-page/tasks">
         <ProtectedRoute>
           <AppLayout>
             <TasksPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/invest">
+      <Route path="/my-page/invest">
         <ProtectedRoute>
           <AppLayout>
             <InvestPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/products">
+      <Route path="/my-page/products">
         <ProtectedRoute>
           <AppLayout>
             <ProductsPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/orders">
+      <Route path="/my-page/orders">
         <ProtectedRoute>
-          <Redirect to="/income" />
+          <RedirectWithCurrentQuery to="/my-page/income" />
         </ProtectedRoute>
       </Route>
-      <Route path="/team">
+      <Route path="/my-page/team">
         <ProtectedRoute>
           <AppLayout>
             <TeamPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/my-products">
+      <Route path="/my-page/my-products">
         <ProtectedRoute>
-          <Redirect to="/income" />
+          <RedirectWithCurrentQuery to="/my-page/income" />
         </ProtectedRoute>
       </Route>
-      <Route path="/account">
+      <Route path="/my-page/account">
         <ProtectedRoute>
           <AppLayout>
             <AccountPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/personal-information">
+      <Route path="/my-page/personal-information">
         <ProtectedRoute>
           <AppLayout>
             <PersonalInformationPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/bind-wallet">
+      <Route path="/my-page/bind-wallet">
         <ProtectedRoute>
           <AppLayout>
             <BindWalletPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/deposit">
+      <Route path="/my-page/deposit">
         <ProtectedRoute>
           <DepositPage />
         </ProtectedRoute>
       </Route>
-      <Route path="/robotpay">
+      <Route path="/my-page/robotpay">
         <ProtectedRoute>
           <RobotPayPage />
         </ProtectedRoute>
       </Route>
-      <Route path="/withdrawal">
+      <Route path="/my-page/withdrawal">
         <ProtectedRoute>
           <AppLayout>
             <WithdrawalPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/deposit-history">
+      <Route path="/my-page/deposit-history">
         <ProtectedRoute>
           <HistoryPage />
         </ProtectedRoute>
       </Route>
-      <Route path="/deposits-history">
+      <Route path="/my-page/deposits-history">
         <ProtectedRoute>
           <HistoryPage />
         </ProtectedRoute>
       </Route>
-      <Route path="/history">
+      <Route path="/my-page/history">
         <ProtectedRoute>
           <HistoryPage />
         </ProtectedRoute>
       </Route>
-      <Route path="/withdrawal-history">
+      <Route path="/my-page/withdrawal-history">
         <ProtectedRoute>
           <HistoryPage />
         </ProtectedRoute>
       </Route>
-      <Route path="/deposit-orders">
+      <Route path="/my-page/deposit-orders">
         <ProtectedRoute>
           <DepositOrdersPage />
         </ProtectedRoute>
       </Route>
-      <Route path="/service">
+      <Route path="/my-page/service">
         <ProtectedRoute>
           <ServicePage />
         </ProtectedRoute>
       </Route>
-      <Route path="/messages">
+      <Route path="/my-page/messages">
         <ProtectedRoute>
           <AppLayout>
             <MessagesPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/wallet">
+      <Route path="/my-page/wallet">
         <ProtectedRoute>
           <WalletPage />
         </ProtectedRoute>
       </Route>
-      <Route path="/income">
+      <Route path="/my-page/income">
         <ProtectedRoute>
           <AppLayout>
             <IncomePage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/share">
+      <Route path="/my-page/share">
         <ProtectedRoute>
           <AppLayout>
             <SharePage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/change-password">
+      <Route path="/my-page/change-password">
         <ProtectedRoute>
           <AppLayout>
             <ChangePasswordPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/about">
+      <Route path="/my-page/about">
         <ProtectedRoute>
           <AboutPage />
         </ProtectedRoute>
       </Route>
-      <Route path="/rules">
+      <Route path="/my-page/rules">
         <ProtectedRoute>
           <RulesPage />
         </ProtectedRoute>
       </Route>
-      <Route path="/gift-code">
+      <Route path="/my-page/gift-code">
         <ProtectedRoute>
           <GiftCodePage />
         </ProtectedRoute>
       </Route>
-      <Route path="/team-details">
+      <Route path="/my-page/team-details">
         <ProtectedRoute>
           <AppLayout>
             <TeamDetailsPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/daily-bonus">
+      <Route path="/my-page/daily-bonus">
         <ProtectedRoute>
           <AppLayout>
             <RewardsPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/salary-bonus">
+      <Route path="/my-page/salary-bonus">
         <ProtectedRoute>
           <AppLayout>
             <SalaryBonusPage />
@@ -363,6 +401,11 @@ function Router() {
           <AdminPage />
         </AdminRoute>
       </Route>
+      {legacyPrivateRoutes.map(([legacyPath, canonicalPath]) => (
+        <Route path={legacyPath} key={legacyPath}>
+          <RedirectWithCurrentQuery to={canonicalPath} />
+        </Route>
+      ))}
       <Route path={`${ADMIN_PATH}/team/:id`}>
         <AdminRoute>
           <AdminTeamPage />

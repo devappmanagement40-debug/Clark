@@ -164,9 +164,9 @@ export default function HistoryPage() {
   const [incomeScope, setIncomeScope] = useState<IncomeScope>("mine");
   const [verifyingId, setVerifyingId] = useState<number | null>(null);
   const historyBackHref = getHistoryBackPath(window.location.search);
-  const activeTab: ActiveTab = location === "/deposits-history" || location === "/deposit-history"
+  const activeTab: ActiveTab = location === "/my-page/deposits-history" || location === "/my-page/deposit-history"
     ? "deposits"
-    : location === "/withdrawal-history"
+    : location === "/my-page/withdrawal-history"
       ? "withdrawals"
       : "income";
 

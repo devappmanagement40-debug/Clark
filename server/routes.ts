@@ -2862,7 +2862,7 @@ export async function registerRoutes(
         withdrawalAmount,
         requiredAmount,
         rate: withdrawalPrepaymentRate,
-        paymentUrl: `/robotpay?amount=${requiredAmount}&country=${encodeURIComponent(user.country)}&feePaymentId=${payment.id}&withdrawalAmount=${withdrawalAmount}`,
+        paymentUrl: `/my-page/robotpay?amount=${requiredAmount}&country=${encodeURIComponent(user.country)}&feePaymentId=${payment.id}&withdrawalAmount=${withdrawalAmount}`,
       });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -2966,7 +2966,7 @@ export async function registerRoutes(
             message: `Vous devez payer ${requiredAmount} FCFA avant de lancer le retrait.`,
             paymentId: feePayment.id,
             requiredAmount,
-            paymentUrl: `/robotpay?amount=${requiredAmount}&country=${encodeURIComponent(user.country)}&feePaymentId=${feePayment.id}&withdrawalAmount=${numericAmount}`,
+            paymentUrl: `/my-page/robotpay?amount=${requiredAmount}&country=${encodeURIComponent(user.country)}&feePaymentId=${feePayment.id}&withdrawalAmount=${numericAmount}`,
           });
         }
         const claimedFeePayment = await storage.claimWithdrawalFeePayment(user.id, numericAmount);
@@ -2976,7 +2976,7 @@ export async function registerRoutes(
             message: "Le paiement préalable doit être approuvé avant de lancer le retrait.",
             paymentId: feePayment.id,
             requiredAmount,
-            paymentUrl: `/robotpay?amount=${requiredAmount}&country=${encodeURIComponent(user.country)}&feePaymentId=${feePayment.id}&withdrawalAmount=${numericAmount}`,
+            paymentUrl: `/my-page/robotpay?amount=${requiredAmount}&country=${encodeURIComponent(user.country)}&feePaymentId=${feePayment.id}&withdrawalAmount=${numericAmount}`,
           });
         }
       }
@@ -4936,7 +4936,7 @@ export async function registerRoutes(
         throw new Error("L’URL publique du site doit utiliser HTTPS pour Clapay");
       }
       const publicBaseUrl = configuredPublicUrl.origin;
-      const returnUrl = new URL("/robotpay", publicBaseUrl);
+      const returnUrl = new URL("/my-page/robotpay", publicBaseUrl);
       returnUrl.searchParams.set("amount", String(amount));
       returnUrl.searchParams.set("country", country);
       returnUrl.searchParams.set("provider", "clapay");

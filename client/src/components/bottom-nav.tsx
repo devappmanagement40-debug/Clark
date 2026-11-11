@@ -8,27 +8,27 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { path: "/", label: "Accueil", icon: PaintRoller },
-  { path: "/income", label: "Revenus", icon: ChartNoAxesColumnIncreasing },
-  { path: "/team", label: "Équipe", icon: UsersRound },
-  { path: "/share", label: "Partager", icon: Share2 },
-  { path: "/account", label: "Moi", icon: ContactRound },
+  { path: "/my-page/home", label: "Accueil", icon: PaintRoller },
+  { path: "/my-page/income", label: "Revenus", icon: ChartNoAxesColumnIncreasing },
+  { path: "/my-page/team", label: "Équipe", icon: UsersRound },
+  { path: "/my-page/share", label: "Partager", icon: Share2 },
+  { path: "/my-page/account", label: "Moi", icon: ContactRound },
 ];
 
 export default function BottomNav() {
   const [location, navigate] = useLocation();
-  const isTeam = location === "/team" || location.startsWith("/team-details");
-  const isHome = location === "/my-page" || location === "/deposit";
+  const isTeam = location === "/my-page/team" || location.startsWith("/my-page/team-details");
+  const isHome = location === "/my-page/home" || location === "/my-page/deposit";
   const isAccount = [
-    "/account",
-    "/personal-information",
-    "/bind-wallet",
-    "/change-password",
-    "/messages",
-    "/history",
-    "/deposit-history",
-    "/deposits-history",
-    "/withdrawal-history",
+    "/my-page/account",
+    "/my-page/personal-information",
+    "/my-page/bind-wallet",
+    "/my-page/change-password",
+    "/my-page/messages",
+    "/my-page/history",
+    "/my-page/deposit-history",
+    "/my-page/deposits-history",
+    "/my-page/withdrawal-history",
   ].includes(location);
 
   return (
@@ -43,9 +43,9 @@ export default function BottomNav() {
         {navItems.map((item) => {
           const isActive = (
             location === item.path
-            || (item.path === "/" && location === "/withdrawal")
-            || (item.path === "/team" && isTeam)
-            || (item.path === "/account" && isAccount)
+            || (item.path === "/my-page/home" && location === "/my-page/withdrawal")
+            || (item.path === "/my-page/team" && isTeam)
+            || (item.path === "/my-page/account" && isAccount)
           );
           const Icon = item.icon;
 
@@ -55,7 +55,7 @@ export default function BottomNav() {
               type="button"
               onClick={() => {
                 navigate(item.path);
-                if (item.path === "/") {
+                if (item.path === "/my-page/home") {
                   window.dispatchEvent(new Event("home-tab-clicked"));
                 }
               }}
