@@ -1638,7 +1638,7 @@ export default function DepositPage() {
           <h1 className="recharge-title">
             <span>Dépôt</span>
           </h1>
-          <Link href="/" className="recharge-back" aria-label="Retour à l’accueil">
+          <Link href="/my-page" className="recharge-back" aria-label="Retour à l’accueil">
               <ChevronLeft className="h-6 w-6" strokeWidth={2.6} aria-hidden="true" />
           </Link>
         </header>

@@ -80,7 +80,7 @@ function BankerRoute({ children }: { children: React.ReactNode }) {
   if (isLoading) return <PageLoading />;
 
   if (!user) return <Redirect to="/login" />;
-  if (!(user as any).isBanker && !user.isAdmin) return <Redirect to="/" />;
+  if (!(user as any).isBanker && !user.isAdmin) return <Redirect to="/my-page" />;
 
   return <>{children}</>;
 }
@@ -91,7 +91,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   if (isLoading) return <PageLoading />;
 
   if (!user || !user.isAdmin) {
-    return <Redirect to="/" />;
+    return <Redirect to="/my-page" />;
   }
 
   return <>{children}</>;
@@ -103,7 +103,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   if (isLoading) return <PageLoading />;
 
   if (user) {
-    return <Redirect to="/" />;
+    return <Redirect to="/my-page" />;
   }
 
   return <>{children}</>;
@@ -131,13 +131,13 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 
 function BrandThemeScope({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const isDashboard = location === "/";
+  const isDashboard = location === "/my-page";
   return <div className={!isDashboard ? "equinor-theme" : undefined}>{children}</div>;
 }
 
 function FloatingGiftCodeButtonOnHome() {
   const [location] = useLocation();
-  return location === "/" ? <FloatingSupport /> : null;
+  return location === "/my-page" ? <FloatingSupport /> : null;
 }
 
 function Router() {
@@ -168,12 +168,15 @@ function Router() {
           <RegisterPage />
         </PublicRoute>
       </Route>
-      <Route path="/">
+      <Route path="/my-page">
         <ProtectedRoute>
           <AppLayout>
             <HomePage />
           </AppLayout>
         </ProtectedRoute>
+      </Route>
+      <Route path="/">
+        <Redirect to={`/my-page${window.location.search}`} />
       </Route>
       <Route path="/tasks">
         <ProtectedRoute>

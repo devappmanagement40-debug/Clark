@@ -17,11 +17,11 @@ test("history returns to its entry page and preserves the deposit context betwee
 
 test("withdrawal returns to the wallet selector when that was the caller", () => {
   assert.equal(getWithdrawalBackPath("?from=wallet"), "/wallet");
-  assert.equal(getWithdrawalBackPath(""), "/");
+  assert.equal(getWithdrawalBackPath(""), "/my-page");
 });
 
 test("wallet returns to the page that opened it", () => {
-  assert.equal(getWalletBackPath("?from=home"), "/");
+  assert.equal(getWalletBackPath("?from=home"), "/my-page");
   assert.equal(getWalletBackPath("?from=gift-code"), "/gift-code");
   assert.equal(getWalletBackPath("?from=withdrawal"), "/withdrawal");
   assert.equal(getWalletBackPath(""), "/account");

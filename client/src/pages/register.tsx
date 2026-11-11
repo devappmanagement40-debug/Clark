@@ -139,7 +139,7 @@ export default function RegisterPage() {
         otpCode: isDemoOtpEnabled ? demoOtpInput : undefined,
       });
       toast({ title: "Inscription réussie !", description: "Bienvenue sur DULUX DT !" });
-      navigate("/");
+      navigate("/my-page");
     } catch (error: any) {
       toast({ title: "Inscription impossible", description: error.message || "Vérifiez vos informations et réessayez.", variant: "destructive" });
     } finally {

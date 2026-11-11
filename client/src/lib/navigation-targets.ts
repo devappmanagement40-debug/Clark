@@ -10,13 +10,13 @@ export function getHistoryTabPath(tab: HistoryTab, search: string): string {
 }
 
 export function getWithdrawalBackPath(search: string): string {
-  return new URLSearchParams(search).get("from") === "wallet" ? "/wallet" : "/";
+  return new URLSearchParams(search).get("from") === "wallet" ? "/wallet" : "/my-page";
 }
 
 export function getWalletBackPath(search: string): string {
   const source = new URLSearchParams(search).get("from");
   if (source === "withdrawal") return "/withdrawal";
   if (source === "gift-code") return "/gift-code";
-  if (source === "home") return "/";
+  if (source === "home") return "/my-page";
   return "/account";
 }

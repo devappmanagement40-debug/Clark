@@ -94,7 +94,7 @@ export default function TasksPage() {
       <header className="border-b-2 border-black bg-[#1947b8] text-white">
         <div className="mx-auto flex min-h-[68px] w-full max-w-xl items-center gap-3 px-4 py-3">
           <Link
-            href="/"
+            href="/my-page"
             aria-label="Retour à l’accueil"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/70 bg-white/10 transition-colors hover:bg-white/20"
             data-testid="button-back"

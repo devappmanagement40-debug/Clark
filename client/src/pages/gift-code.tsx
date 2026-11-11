@@ -360,7 +360,7 @@ export default function GiftCodePage() {
           type="button"
           className="gift-treasure-back"
           aria-label="Retour à l’accueil"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/my-page")}
         >
           <ArrowLeft size={22} aria-hidden="true" />
         </button>

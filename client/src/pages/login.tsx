@@ -83,7 +83,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await login(data.phone, data.country, data.password);
-      navigate("/");
+      navigate("/my-page");
     } catch (error: any) {
       toast({ title: "Connexion impossible", description: error.message || "Vérifiez votre numéro et votre mot de passe.", variant: "destructive" });
     } finally {

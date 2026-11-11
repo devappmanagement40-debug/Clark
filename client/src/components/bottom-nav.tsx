@@ -18,7 +18,7 @@ const navItems = [
 export default function BottomNav() {
   const [location, navigate] = useLocation();
   const isTeam = location === "/team" || location.startsWith("/team-details");
-  const isHome = location === "/" || location === "/deposit";
+  const isHome = location === "/my-page" || location === "/deposit";
   const isAccount = [
     "/account",
     "/personal-information",

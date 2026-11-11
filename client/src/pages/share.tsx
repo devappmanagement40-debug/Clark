@@ -78,7 +78,7 @@ export default function SharePage() {
           <button
             className="share-back"
             type="button"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/my-page")}
             aria-label="Retour à l’accueil"
           >
             <ChevronLeft size={25} strokeWidth={1.8} aria-hidden="true" />

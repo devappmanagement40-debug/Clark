@@ -747,7 +747,7 @@ export default function RobotPayPage() {
             setStep(0);
             return;
           }
-          navigate("/");
+          navigate("/my-page");
         }}
         onClose={() => navigate("/deposit")}
         transactionReference={manualTransactionReference}
@@ -761,7 +761,7 @@ export default function RobotPayPage() {
         onRefreshStatus={refreshManualPaymentStatus}
         isRefreshing={manualStatusRefreshing}
         onViewHistory={() => navigate("/deposits-history?from=deposit")}
-        onHome={() => navigate("/")}
+        onHome={() => navigate("/my-page")}
       />
     );
   }
@@ -803,7 +803,7 @@ export default function RobotPayPage() {
           setStep(0);
         }}
         onViewHistory={() => navigate("/deposits-history?from=deposit")}
-        onHome={() => navigate("/")}
+        onHome={() => navigate("/my-page")}
       />
     );
   }
@@ -1377,7 +1377,7 @@ export default function RobotPayPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => navigate("/")}
+                    onClick={() => navigate("/my-page")}
                     className="flex-1 rounded-[11px] border-2 border-[#111827] bg-[#D40030] py-3 font-bold text-white shadow-[0_3px_0_#111827] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827]"
                   >
                     Retour au site
@@ -1433,7 +1433,7 @@ export default function RobotPayPage() {
                   <b>Date Paiement :</b> {new Date().toLocaleString("fr-FR")}
                 </div>
                 <p className="pt-6 text-gray-600">🔒 Paiement vérifié</p>
-                <button onClick={() => navigate("/")} className={`text-lg font-semibold underline underline-offset-4 ${isBjClapayFlow ? "text-[#00377d] decoration-[#ffd100] hover:text-[#002b61]" : "text-[#111827] decoration-[#D40030] hover:text-[#A60026]"}`}>Retourner sur le site</button>
+                <button onClick={() => navigate("/my-page")} className={`text-lg font-semibold underline underline-offset-4 ${isBjClapayFlow ? "text-[#00377d] decoration-[#ffd100] hover:text-[#002b61]" : "text-[#111827] decoration-[#D40030] hover:text-[#A60026]"}`}>Retourner sur le site</button>
               </div>
             )
           )}
