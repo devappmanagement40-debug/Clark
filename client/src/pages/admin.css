@@ -1,0 +1,23 @@
+.admin-panel {
+  min-height: 100vh;
+  color: #142b4d;
+  background-color: #fff !important;
+  background-image: none !important;
+}
+
+.admin-panel [role="tablist"] {
+  border: 1px solid #e1e8f0;
+  border-radius: 0.75rem;
+  background-color: #f1f5f9;
+  padding: 0.25rem;
+}
+
+.admin-panel [role="tab"] {
+  color: #52647a;
+}
+
+.admin-panel [role="tab"][data-state="active"] {
+  background-color: #0b3679 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 6px rgb(11 54 121 / 18%);
+}

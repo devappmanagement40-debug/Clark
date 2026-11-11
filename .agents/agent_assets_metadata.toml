@@ -1,0 +1,56 @@
+uploads = []
+
+[[generated]]
+id = "tp56GvLWfB-M1j6XtANvz"
+uri = "file://client/public/withdrawal-banner.png"
+type = "image"
+title = "industrial robots dark blue banner"
+
+[[outputs]]
+id = "PL4-GNtW1CRsLuKZn07yS"
+uri = "file://plesk-deploy-bundle.zip"
+type = "unspecified"
+title = "Paquet de déploiement Plesk"
+logical_id = "26635fea-4579-4f32-a092-2407f47a006e"
+
+[[outputs]]
+id = "Z8vHbxlnHKg7KL21rTMUF"
+uri = "file://screenshots/chargepoint-home-comparison.png"
+type = "image"
+title = "Accueil ChargePoint — fond blanc et sections séparées"
+description = "Aperçu mobile de la nouvelle organisation. Les montants de cette capture sont simulés uniquement pour la vérification visuelle."
+logical_id = "48545674-99cc-4de5-84d5-75f1fcbdccc5"
+content_hash = "sha256:a821feccda6075c35e62efdbb1d9a468e778f10fd5f5c66e977e9d45be72ed7b"
+size = 125710
+mtime_ms = 1790157903919
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:5b5a68ec-a699-4053-b777-28a59e6c3126/48545674-99cc-4de5-84d5-75f1fcbdccc5/2fe933f0-e317-4d92-abd3-2f42f7864866"
+storage_version_token = "1790157951689484"
+content_type = "image/png"
+
+[[outputs]]
+id = "9tk-tTQFp9yOqWRtYgQiK"
+uri = "file://client/src/assets/notice-bell.png"
+type = "image"
+title = "Icône PNG du bandeau"
+description = "Cloche transparente orange ChargePoint, utilisée directement comme image dans le bandeau de l’accueil."
+logical_id = "e2d770e9-173e-47aa-bc33-ad118fe68181"
+content_hash = "sha256:0c6fd4dfd057533261f7c43b6e5f58c4f357dfd0900ddf2268ab23d336541ec4"
+size = 3957
+mtime_ms = 1790158666203
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:5b5a68ec-a699-4053-b777-28a59e6c3126/e2d770e9-173e-47aa-bc33-ad118fe68181/0eba6261-77a5-496f-92c5-56ca936e453f"
+storage_version_token = "1790158749907436"
+content_type = "image/png"
+
+[[outputs]]
+id = "e53EdRC3muEn81R_30zhs"
+uri = "file://attached_assets/generated_images/chargepoint-empty-products.png"
+type = "image"
+title = "Illustration état vide ChargePoint"
+description = "Illustration utilisée lorsqu’aucun produit ChargePoint n’a encore été acheté."
+logical_id = "a9dc5970-b1c8-4d1e-a2bd-610ed217c734"
+content_hash = "sha256:19f032eecada51cee1d8f955e847b5fc44bca6e37a768639053ac86fb6805942"
+size = 931175
+mtime_ms = 1790188923435
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:5b5a68ec-a699-4053-b777-28a59e6c3126/a9dc5970-b1c8-4d1e-a2bd-610ed217c734/a9139812-12d1-48fe-a9a4-d040c5c3b20e"
+storage_version_token = "1790188949360342"
+content_type = "image/png"

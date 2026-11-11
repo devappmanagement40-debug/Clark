@@ -1,0 +1,291 @@
+.cp-bind-wallet-page {
+  background: #ededf6;
+}
+
+.cp-bind-wallet-card {
+  width: min(calc(100% - 32px), 460px);
+  min-height: calc(100dvh - 130px);
+  margin: 18px auto 24px;
+  border-radius: 12px;
+  padding: 17px 18px 24px;
+  background: #fff;
+}
+
+.cp-wallet-card-preview {
+  position: relative;
+  display: flex;
+  min-height: 210px;
+  align-items: stretch;
+  overflow: hidden;
+  border-radius: 18px;
+  padding: 24px 22px;
+  background: linear-gradient(125deg, #141414 0%, #3a3a3a 55%, #858585 100%);
+  color: #fff;
+  box-shadow: 0 3px 7px rgb(0 0 0 / 40%);
+}
+
+.cp-wallet-card-copy {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+  padding-top: 4px;
+  padding-right: 78px;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 40%);
+}
+
+.cp-wallet-card-method,
+.cp-wallet-card-number {
+  overflow: hidden;
+  max-width: 100%;
+  font-size: clamp(14px, 4.3vw, 17px);
+  font-weight: 500;
+  letter-spacing: .01em;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.cp-wallet-card-name {
+  max-width: 100%;
+  margin-top: auto;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.cp-wallet-card-chip {
+  position: absolute;
+  z-index: 1;
+  top: 24px;
+  right: 22px;
+  width: 54px;
+  height: 36px;
+}
+
+.cp-bind-wallet-fields {
+  display: grid;
+  gap: 16px;
+  margin-top: 19px;
+}
+
+.cp-bind-field {
+  display: grid;
+  gap: 7px;
+  color: #62666d;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cp-bind-field input,
+.cp-wallet-method-trigger {
+  display: block;
+  width: 100%;
+  height: 49px;
+  border: 1.5px solid #cbd5df;
+  border-radius: 11px;
+  padding: 0 12px;
+  outline: none;
+  background: #fff;
+  color: #1e3a5f;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: inset 0 1px 3px rgb(22 53 84 / 10%);
+}
+
+.cp-wallet-method-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.cp-wallet-method-trigger:disabled {
+  cursor: not-allowed;
+  opacity: .65;
+}
+
+.cp-wallet-method-chevron {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  transform: rotate(45deg) translateY(-2px);
+  border-right: 1.5px solid #87919f;
+  border-bottom: 1.5px solid #87919f;
+}
+
+.cp-bind-field input::placeholder {
+  color: #8a9098;
+  font-weight: 400;
+}
+
+.cp-bind-field input:focus,
+.cp-wallet-method-trigger:focus-visible {
+  border-color: #17457f;
+  box-shadow: inset 0 1px 3px rgb(22 53 84 / 8%);
+}
+
+.cp-wallet-picker-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgb(0 0 0 / 48%);
+}
+
+.cp-wallet-picker {
+  position: relative;
+  width: 100%;
+  height: min(320px, 56dvh);
+  min-height: 260px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.cp-wallet-picker-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  height: 50px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eeeeee;
+  padding: 0 16px;
+  background: #fff;
+}
+
+.cp-wallet-picker-actions button {
+  min-width: 64px;
+  min-height: 44px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #7c7c7c;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.cp-wallet-picker-actions button:last-child {
+  color: #1684e8;
+  text-align: right;
+}
+
+.cp-wallet-picker-window {
+  position: relative;
+  z-index: 1;
+  height: 144px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin-top: 60px;
+  overscroll-behavior: contain;
+  padding: 48px 0;
+  scrollbar-width: none;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cp-wallet-picker-window::-webkit-scrollbar {
+  display: none;
+}
+
+.cp-wallet-picker-options {
+  display: grid;
+}
+
+.cp-wallet-picker-options button {
+  height: 48px;
+  scroll-snap-align: center;
+  border: 0;
+  padding: 0 16px;
+  background: transparent;
+  color: #a0a0a0;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.cp-wallet-picker-options button.is-selected {
+  color: #111;
+  font-size: 17px;
+}
+
+.cp-wallet-picker-selection-mark {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 48px;
+  transform: translateY(0);
+  border-top: 1px solid rgb(0 0 0 / 3%);
+  border-bottom: 1px solid rgb(0 0 0 / 3%);
+  pointer-events: none;
+}
+
+.cp-bind-wallet-error {
+  margin: -4px 0 0;
+  color: #a43c3c;
+  font-size: 13px;
+}
+
+.cp-bind-wallet-submit {
+  display: grid;
+  min-height: 53px;
+  place-items: center;
+  margin-top: 1px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(105deg, #0c3a83 0%, #5273a7 100%);
+  color: #fff;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  box-shadow: 0 4px 9px rgb(15 51 104 / 25%);
+  cursor: pointer;
+}
+
+.cp-bind-wallet-submit:focus-visible {
+  outline: 2px solid #17457f;
+  outline-offset: 3px;
+}
+
+.cp-bind-wallet-submit:disabled {
+  cursor: wait;
+  opacity: .65;
+}
+
+@media (max-width: 360px) {
+  .cp-bind-wallet-card {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .cp-wallet-card-preview {
+    min-height: 188px;
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
+  .cp-wallet-card-copy { padding-right: 66px; }
+
+  .cp-wallet-card-chip {
+    top: 20px;
+    right: 18px;
+    width: 48px;
+    height: 32px;
+  }
+}
+
+@media (min-width: 700px) {
+  .cp-bind-wallet-card {
+    margin-top: 22px;
+  }
+}

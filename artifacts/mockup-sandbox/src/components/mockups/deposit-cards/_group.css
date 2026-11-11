@@ -1,0 +1,376 @@
+:root {
+  --button-outline: rgba(0,0,0,.10);
+  --badge-outline: rgba(0,0,0,.05);
+  --opaque-button-border-intensity: -8;
+  --elevate-1: rgba(0,0,0,.03);
+  --elevate-2: rgba(0,0,0,.08);
+  --background: 0 0% 96%;
+  --foreground: 0 0% 10%;
+  --border: 0 0% 85%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 10%;
+  --card-border: 0 0% 90%;
+  --primary: 221 76% 41%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 10%;
+  --muted: 0 0% 94%;
+  --muted-foreground: 0 0% 45%;
+  --accent: 221 100% 96%;
+  --accent-foreground: 221 76% 41%;
+  --input: 0 0% 85%;
+  --ring: 221 76% 41%;
+  --font-sans: "Inter", sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
+  --radius: .5rem;
+}
+
+.dark {
+  --button-outline: rgba(255,255,255,.10);
+  --badge-outline: rgba(255,255,255,.05);
+  --opaque-button-border-intensity: 9;
+  --elevate-1: rgba(255,255,255,.04);
+  --elevate-2: rgba(255,255,255,.09);
+  --background: 0 0% 8%;
+  --foreground: 0 0% 95%;
+  --border: 0 0% 20%;
+  --card: 0 0% 12%;
+  --card-foreground: 0 0% 95%;
+  --card-border: 0 0% 18%;
+  --primary: 221 76% 50%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 18%;
+  --secondary-foreground: 0 0% 95%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 55%;
+  --accent: 221 68% 42%;
+  --accent-foreground: 0 0% 100%;
+  --input: 0 0% 22%;
+  --ring: 221 76% 50%;
+}
+
+.recharge-reference,
+.recharge-reference * {
+  box-sizing: border-box;
+}
+
+.recharge-reference {
+  min-height: 100dvh;
+  background: #f7f6f2;
+  color: #18233b;
+  font-family: "DM Sans", "Avenir Next", system-ui, sans-serif;
+}
+
+.recharge-screen {
+  width: 100%;
+  max-width: 512px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  overflow: hidden;
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
+  background: #f7f6f2;
+}
+
+.recharge-hero {
+  position: relative;
+  display: flex;
+  height: 64px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 58px;
+  border: 0;
+  background: #12358f;
+  color: #fff;
+}
+
+.recharge-title {
+  margin: 0;
+  color: #fff;
+  font-size: 19px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.recharge-title svg {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  vertical-align: -3px;
+}
+
+.recharge-back,
+.history-button {
+  position: absolute;
+  z-index: 3;
+  top: 11px;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  background: rgb(255 255 255 / 13%);
+  color: #fff;
+}
+
+.recharge-back { left: 16px; }
+.history-button { right: 16px; }
+
+.deposit-intro {
+  position: relative;
+  display: flex;
+  min-height: 118px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 18px 0;
+  padding: 23px 19px 35px;
+  overflow: hidden;
+  border-radius: 22px 22px 12px 12px;
+  background: linear-gradient(125deg, #1947b8 0%, #12358f 100%);
+  color: #fff;
+}
+
+.deposit-intro-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 270px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.deposit-intro-icon {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  margin-top: 1px;
+  color: #dce7ff;
+  opacity: .92;
+}
+
+.account-summary {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-height: 106px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: -7px 18px 0;
+  padding: 18px 16px;
+  border-radius: 24px;
+  background: #fff;
+  text-align: center;
+}
+
+.balance-value {
+  display: inline;
+  margin: 0;
+  color: #c58220;
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+
+.balance-label {
+  display: inline;
+  margin: 0 7px 0 0;
+  color: #777b83;
+  font-size: 16px;
+}
+
+.country-chip { display: none; }
+
+.amount-panel {
+  margin: 22px 18px 0;
+  padding: 17px 16px 16px;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.amount-label {
+  display: flex;
+  align-items: center;
+  margin: 0 0 12px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid #e8e8e6;
+  color: #252a32;
+  font-size: 16px;
+  font-weight: 750;
+}
+
+.amount-heading-icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-right: 9px;
+  color: #1947b8;
+}
+
+.preset-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0 0 10px;
+}
+
+.preset {
+  min-width: 0;
+  min-height: 48px;
+  border: 1px solid #d5d7db;
+  border-radius: 10px;
+  background: #fff;
+  color: #30343b;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.preset.active {
+  border-color: #1947b8;
+  background: #1947b8;
+  color: #fff;
+  box-shadow: 0 3px 9px rgb(25 71 184 / 20%);
+}
+
+.amount-input {
+  display: flex;
+  height: 52px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid #d5d7db;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.amount-input:focus-within {
+  border-color: #1947b8;
+  box-shadow: 0 0 0 3px rgb(25 71 184 / 12%);
+}
+
+.amount-input input {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  flex: 1;
+  padding: 0 14px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #111827;
+  font: inherit;
+  font-size: 16px;
+}
+
+.currency {
+  flex: 0 0 auto;
+  padding: 0 13px;
+  color: #4c5361;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.country-panel {
+  margin: 16px 18px 0;
+  padding: 16px;
+  border-radius: 17px;
+  background: #fff;
+}
+
+.country-heading {
+  margin: 0 0 10px;
+  color: #292e37;
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.country-select {
+  display: flex;
+  width: 100%;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 14px;
+  border: 1px solid #d5d7db;
+  border-radius: 10px;
+  background: #fff;
+  color: #454a53;
+  font: inherit;
+  font-size: 15px;
+  text-align: left;
+}
+
+.country-select-prefix {
+  margin-left: auto;
+  color: #1947b8;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.country-select svg { flex: none; color: #6b7280; }
+
+.continue {
+  width: calc(100% - 36px);
+  min-height: 58px;
+  margin: 17px 18px 0;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(112deg, #1947b8 0%, #12358f 100%);
+  color: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.instructions {
+  margin: 17px 18px 20px;
+  padding: 16px 15px 5px;
+  border-radius: 17px;
+  background: #fff;
+  color: #444a54;
+}
+
+.instructions-title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.instructions-title::before {
+  content: "!";
+  display: inline-grid;
+  width: 19px;
+  height: 19px;
+  place-items: center;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: #1947b8;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.instruction {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.instruction strong { color: #303640; }
+
+@media (max-width: 360px) {
+  .deposit-intro,
+  .account-summary,
+  .amount-panel,
+  .country-panel,
+  .instructions { margin-right: 12px; margin-left: 12px; }
+  .continue { width: calc(100% - 24px); margin-right: 12px; margin-left: 12px; }
+  .preset { font-size: 13px; }
+}

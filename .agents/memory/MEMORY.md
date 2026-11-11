@@ -1,0 +1,33 @@
+- [CATL brand transition](catl-brand-transition.md) — Site is DULUX DT; replace CATL image placements with Dulux assets, while retaining non-image copy and colors.
+- [New application transition](new-application-transition.md) — Treat the rebuild as a fresh application; preserve Supabase-managed schemas and confirm before further destructive changes.
+- [Deposit checkout routing](deposit-checkout-routing.md) — Keep aggregator choice internal; manual number deposits stay pending through the countdown until admin review.
+- [WestPay Integration](westpay-integration.md) — Redirect-based deposit flow + HMAC webhook; per-country API keys for withdrawals; secrets only (never in code/DB).
+- [SendavaPay integration](sendavapay-integration.md) — Payin deposit flow: backend creates+initiates, user phone auto-used, OTP/redirect handled, webhook HMAC verified.
+- [External database target](imported-database-setup.md) — Use the configured external PostgreSQL only, never Replit DB, and verify live server identity rather than trusting the secret name.
+- [Demo OTP registration](demo-otp-registration.md) — User chose changing, auto-filled demonstration codes without SMS; keep the demo limited to development.
+- [Plesk and GitHub](plesk-github-deployment.md) — Plesk deploys the committed dist build; Replit Git Provider auth is separate from the GitHub connector.
+- [Login privacy](login-privacy.md) — Do not persist passwords or phone numbers in browser storage; privacy scans classify remembered phone numbers as sensitive.
+- [Admin bootstrap credentials](admin-bootstrap-credentials.md) — Never hardcode a default admin account or PIN; require explicit configuration.
+- [Page visual styling](ton-green-theme.md) — Use Dulux blue and pale surfaces; never use the old CATL image as a full-page wallpaper.
+- [InPay callback classification](inpay-callbacks.md) — InPay payin and payout callbacks can both include order_number; classify using the merchant reference prefix first.
+- [InPay IP whitelist](inpay-ip-whitelist.md) — InPay rejects API calls with errno 5 until the server's public egress IP is whitelisted.
+- [AshtechPay Burkina flow](ashtechpay-burkina.md) — BF uses exact operator names and requires the returned reference on OTP retries.
+- [Country availability](country-availability.md) — preserve country history, manage methods per country, and derive TMoney USSD from its admin-configured number.
+- [Fictitious financial examples](demo-referrals.md) — Keep varied home activity messages display-only; show each vertical entry as its own framed block, not a table.
+- [Dev workflow port conflict](workflow-port-conflict.md) — a failed restart can leave a prior server child listening on port 5000; inspect the listener before retrying.
+- [Withdrawal balance policy](withdrawal-balance-policy.md) — deposits and signup bonuses are purchase-only; earnings remain the only withdrawable balance.
+- [VIP levels](vip-levels.md) — rank paid VIPs by offer order, not display name; the initial catalog sells offers 1–6 and keeps 7–9 inactive.
+- [VIP duration](vip-duration.md) — CATL VIP totals are daily earnings × 150 days; apply new terms only to future purchases and preserve current holders.
+- [Task milestone management](task-milestones.md) — Keep task thresholds and rewards database-driven, editable in admin, and never restore deleted values on app startup.
+- [Mockup sandbox isolation](mockup-sandbox-dependencies.md) — Separate dependencies and preview ports mean a main-app screenshot can misreport a healthy sandbox preview.
+- [Workflow secret scope](workflow-secret-scope.md) — One-off shell commands may lack secrets available to the managed app workflow; use scoped presence checks and guarded execution.
+- [Database-free visual preview](database-free-preview.md) — Keep a clearly labeled UI-only preview available when the database URL is absent; never present preview actions or fake financial data as live.
+- [Telegram bot polling](telegram-bot-polling.md) — Run one production getUpdates poller per bot token; parallel pollers conflict.
+- [External payment configuration rollback](external-payment-config-rollback.md) — Restoring payment source files from GitHub does not undo provider settings already persisted in external Supabase.
+- [Clapay contract configuration](clapay-contract-configuration.md) — Keep secrets in Plesk, confirm via the authenticated API, and preserve uncertain initiations for signed-callback reconciliation.
+- [Workflow callback arguments](workflow-callback-arguments.md) — Runtime workflow callbacks can require object arguments even when the skill example shows a bare value.
+- [Site-wide processing indicator](site-wide-processing-indicator.md) — Keep action-processing feedback global across app routes, not scoped to the page where one example appeared.
+- [Provider reference privacy](provider-reference-privacy.md) — Keep provider transaction IDs internal; customer history and payment responses use stable public IDs.
+- [Route parameter normalization](route-parameter-normalization.md) — Normalize Express route parameters before parsing or passing them to string-only helpers.
+- [Admin-configured financial text](admin-configured-financial-text.md) — Customer-facing minimums and financial terms must reflect current admin settings, not fixed UI defaults or stale cache.
+- [Pointage retiré](pointage-disabled.md) — Ne plus proposer Pointage ni son bonus; conserver les données historiques.

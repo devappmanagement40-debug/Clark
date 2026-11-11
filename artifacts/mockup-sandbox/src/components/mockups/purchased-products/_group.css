@@ -1,0 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+
+:root {
+  --purchased-card-red: #bd304c;
+  --purchased-card-red-dark: #9e263c;
+  --purchased-card-ink: #111827;
+  --purchased-card-muted: #6b7280;
+  --purchased-card-border: #111827;
+}
+

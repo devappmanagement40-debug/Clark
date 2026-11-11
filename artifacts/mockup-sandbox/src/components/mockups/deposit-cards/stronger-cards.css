@@ -1,0 +1,55 @@
+.deposit-cards-strong .deposit-intro,
+.deposit-cards-strong .account-summary,
+.deposit-cards-strong .amount-panel,
+.deposit-cards-strong .country-panel,
+.deposit-cards-strong .instructions {
+  border: 2px solid #17191c;
+  box-shadow: 0 3px 0 #17191c, 0 8px 18px rgba(17, 24, 39, .16);
+}
+
+.deposit-cards-strong .instructions {
+  border-top: 5px solid #1947b8;
+}
+
+.deposit-cards-strong .preset {
+  border: 2px solid #17191c;
+  font-weight: 700;
+  box-shadow: 0 2px 0 #17191c, 0 4px 9px rgba(17, 24, 39, .11);
+  transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease;
+}
+
+.deposit-cards-strong .preset.active {
+  border-color: #17191c;
+  background: linear-gradient(112deg, #1947b8 0%, #12358f 100%);
+  box-shadow: 0 3px 0 #17191c, 0 7px 14px rgba(25, 71, 184, .2);
+}
+
+.deposit-cards-strong .preset:hover:not(:disabled) { transform: translateY(-1px); }
+.deposit-cards-strong .preset:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #17191c; }
+
+.deposit-cards-strong .amount-input,
+.deposit-cards-strong .country-select {
+  border: 2px solid #17191c;
+  box-shadow: 0 2px 0 #17191c, 0 5px 12px rgba(17, 24, 39, .11);
+}
+
+.deposit-cards-strong .amount-input:focus-within,
+.deposit-cards-strong .country-select:focus-visible {
+  border-color: #1947b8;
+  outline: 0;
+  box-shadow: 0 2px 0 #17191c, 0 0 0 3px rgb(25 71 184 / 16%);
+}
+
+.deposit-cards-strong .country-select:hover { background: #f7f9ff; }
+
+.deposit-cards-strong .continue {
+  border: 2px solid #17191c;
+  border-radius: 14px;
+  font-weight: 800;
+  box-shadow: 0 4px 0 #17191c, 0 8px 16px rgba(18, 53, 143, .2);
+}
+
+.deposit-cards-strong .continue:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #17191c;
+}

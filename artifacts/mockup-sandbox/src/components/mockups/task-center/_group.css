@@ -1,0 +1,21 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --equinor-red: #bd304c;
+  --equinor-red-dark: #9e263c;
+  --equinor-red-soft: #fff0f3;
+  --equinor-black: #151515;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #fff;
+  color: var(--equinor-black);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
