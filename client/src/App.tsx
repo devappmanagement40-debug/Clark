@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import BottomNav from "@/components/bottom-nav";
 import FloatingSupport from "@/components/floating-support";
+import FloatingWheelAction from "@/components/floating-wheel-action";
 import GlobalProcessingOverlay, { ProcessingOverlay } from "@/components/global-processing-overlay";
 import { ADMIN_PATH } from "@/lib/admin-path";
 
@@ -40,6 +41,7 @@ const ProductsPage = lazy(() => import("@/pages/products"));
 const RewardsPage = lazy(() => import("@/pages/rewards"));
 const DepositOrdersPage = lazy(() => import("@/pages/deposit-orders"));
 const SalaryBonusPage = lazy(() => import("@/pages/salary-bonus"));
+const WheelPage = lazy(() => import("@/pages/wheel"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 function PageLoading() {
@@ -142,6 +144,7 @@ const legacyPrivateRoutes: Array<[string, string]> = [
   ["/about", "/my-page/about"],
   ["/rules", "/my-page/rules"],
   ["/gift-code", "/my-page/gift-code"],
+  ["/wheel", "/my-page/wheel"],
   ["/team-details", "/my-page/team-details"],
   ["/daily-bonus", "/my-page/daily-bonus"],
   ["/salary-bonus", "/my-page/salary-bonus"],
@@ -175,7 +178,13 @@ function BrandThemeScope({ children }: { children: React.ReactNode }) {
 
 function FloatingGiftCodeButtonOnHome() {
   const [location] = useLocation();
-  return location === "/my-page/home" ? <FloatingSupport /> : null;
+  if (location !== "/my-page/home") return null;
+  return (
+    <>
+      <FloatingSupport />
+      <FloatingWheelAction />
+    </>
+  );
 }
 
 function Router() {
@@ -210,6 +219,13 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <HomePage />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/my-page/wheel">
+        <ProtectedRoute>
+          <AppLayout>
+            <WheelPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
