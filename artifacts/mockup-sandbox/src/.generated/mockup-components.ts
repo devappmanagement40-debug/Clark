@@ -10,6 +10,7 @@ export const modules: ModuleMap = {
   "./components/mockups/dulux-login/DuluxLogin.tsx": () => import("../components/mockups/dulux-login/DuluxLogin.tsx"),
   "./components/mockups/dulux-signup/Current.tsx": () => import("../components/mockups/dulux-signup/Current.tsx"),
   "./components/mockups/dulux-signup/DuluxRegister.tsx": () => import("../components/mockups/dulux-signup/DuluxRegister.tsx"),
+  "./components/mockups/dulux-wheel/Current.tsx": () => import("../components/mockups/dulux-wheel/Current.tsx"),
   "./components/mockups/equinor-auth/AuthPreview.tsx": () => import("../components/mockups/equinor-auth/AuthPreview.tsx"),
   "./components/mockups/equinor-auth/CurrentLogin.tsx": () => import("../components/mockups/equinor-auth/CurrentLogin.tsx"),
   "./components/mockups/equinor-auth/CurrentRegister.tsx": () => import("../components/mockups/equinor-auth/CurrentRegister.tsx"),
