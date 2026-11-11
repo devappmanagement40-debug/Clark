@@ -32,7 +32,7 @@ export default function SharePage() {
 
   const referralCode = user.referralCode?.trim() || "";
   const referralLink = referralCode
-    ? new URL(`/html/register?code=${encodeURIComponent(referralCode)}`, window.location.origin).toString()
+    ? new URL(`/invitation?invite?code=${encodeURIComponent(referralCode)}`, window.location.origin).toString()
     : "";
 
   const copyValue = async (value: string, label: string) => {
