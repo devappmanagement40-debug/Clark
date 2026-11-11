@@ -103,10 +103,10 @@ function WheelIllustration() {
               </g>
             );
           })}
-          <circle cx="150" cy="150" r="20" className="wheel-hub" />
-          <text x="150" y="154" className="wheel-hub-label" textAnchor="middle">DT</text>
         </svg>
-        <div className="wheel-pointer" aria-hidden="true" />
+        <div className="wheel-hub-logo">
+          <img src="/__mockup/images/dulux-wheel-logo.png" alt="Dulux" />
+        </div>
       </div>
     </div>
   );
@@ -173,15 +173,10 @@ function WheelPage() {
           type="button"
           className="wheel-draw-button"
           disabled
-          aria-describedby="wheel-disabled-note"
         >
           <span>Lancer le tirage</span>
           <span className="wheel-button-mark" aria-hidden="true"><Gift size={18} /></span>
         </button>
-        <p className="wheel-disabled-note" id="wheel-disabled-note" role="status">
-          Le tirage sera activé après configuration.
-        </p>
-
         <section className="wheel-event" aria-labelledby="wheel-event-title">
           <h2 id="wheel-event-title">PRÉSENTATION DE L'ÉVÉNEMENT</h2>
           <div className="wheel-event-card">
@@ -191,7 +186,6 @@ function WheelPage() {
               visibles sur la maquette, de 777 à 977 777 XOF, sont des exemples à configurer avant l’ouverture.
               Bonne chance !
             </p>
-            <span className="wheel-example-note">Maquette visuelle — les lots, montants et règles restent à configurer.</span>
           </div>
         </section>
 
