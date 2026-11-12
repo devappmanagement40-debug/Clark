@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import AdminWheelRewards from "@/components/admin/admin-wheel-rewards";
 import {
-  DEFAULT_WHEEL_CONFIGURATION,
   wheelConfigurationSchema,
   type WheelConfiguration,
   type WheelPrizeConfiguration,
@@ -24,7 +24,11 @@ function createPrizeId() {
 export default function AdminWheelSettings() {
   const { toast } = useToast();
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
-  const [draft, setDraft] = useState<WheelConfiguration>(DEFAULT_WHEEL_CONFIGURATION);
+  const [draft, setDraft] = useState<WheelConfiguration>({
+    buyerSpinsPerPurchase: 0,
+    referralSpinsPerPurchase: 0,
+    prizes: [],
+  });
   const configQuery = useQuery<WheelConfiguration>({
     queryKey: ["/api/admin/wheel/config"],
   });
@@ -184,7 +188,7 @@ export default function AdminWheelSettings() {
           <div className="space-y-1">
             <CardTitle>Lots et probabilités</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Les probabilités des lots actifs doivent totaliser 100 %. Les lots désactivés ou à 0 % ne sont pas montrés sur la roue publique.
+              Les probabilités des lots actifs doivent totaliser 100 %. Tous les lots restent visibles sur la roue; un lot désactivé ne peut jamais être gagné.
             </p>
           </div>
           <Button type="button" variant="outline" onClick={addPrize} disabled={draft.prizes.length >= 20} data-testid="button-add-wheel-prize">
@@ -327,6 +331,7 @@ export default function AdminWheelSettings() {
           </Button>
         </CardContent>
       </Card>
+      <AdminWheelRewards />
     </div>
   );
 }

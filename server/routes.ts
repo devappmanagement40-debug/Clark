@@ -990,6 +990,22 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/wheel/draw", requireAuth, async (req, res) => {
+    try {
+      const result = await storage.drawWheel(req.session.userId!);
+      res.json(result);
+    } catch (error: any) {
+      if (error.message === "Vous n’avez plus de tour disponible.") {
+        return res.status(409).json({ message: error.message });
+      }
+      if (error.message === "Aucun lot gagnable n’est configuré.") {
+        return res.status(503).json({ message: "Le tirage est momentanément indisponible." });
+      }
+      console.error("[wheel] Draw failed:", error);
+      res.status(500).json({ message: "Le tirage n’a pas pu être effectué. Réessayez." });
+    }
+  });
+
   app.get("/api/wheel/rewards/history", requireAuth, async (req, res) => {
     try {
       const records = await storage.getWheelRewardHistory(req.session.userId!);
@@ -1052,6 +1068,29 @@ export async function registerRoutes(
       res.json(parsed.data);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Impossible d’enregistrer la configuration de la roue." });
+    }
+  });
+
+  app.get("/api/admin/wheel/rewards", requireAdmin, async (_req, res) => {
+    try {
+      res.json(await storage.getPendingWheelRewards());
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Impossible de charger les lots à remettre." });
+    }
+  });
+
+  app.post("/api/admin/wheel/rewards/:id/delivered", requireAdmin, async (req, res) => {
+    const rewardId = Number(req.params.id);
+    if (!Number.isSafeInteger(rewardId) || rewardId <= 0) {
+      return res.status(400).json({ message: "Récompense invalide." });
+    }
+
+    try {
+      const updated = await storage.markWheelRewardDelivered(rewardId, req.session.userId!);
+      if (!updated) return res.status(409).json({ message: "Cette récompense n’est plus en attente." });
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Impossible de confirmer la remise." });
     }
   });
 

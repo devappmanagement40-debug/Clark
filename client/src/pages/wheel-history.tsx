@@ -26,6 +26,8 @@ function formatRewardDate(value: string) {
 
 function getRewardStatusLabel(status: string) {
   switch (status) {
+    case "credited":
+      return "Créditée au solde des revenus";
     case "delivered":
       return "Récompense remise";
     case "cancelled":

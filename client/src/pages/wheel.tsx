@@ -1,21 +1,34 @@
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import duluxLogo from "@/assets/images/dulux-logo.png";
 import {
-  DEFAULT_WHEEL_CONFIGURATION,
   displayWheelPrize,
-  getPublicWheelConfiguration,
   type PublicWheelConfiguration,
-  type WheelPrizeConfiguration,
+  type PublicWheelPrize,
 } from "@shared/wheel-config";
 import "./wheel.css";
+
+type WheelDrawResponse = {
+  rewardId: number;
+  prizeId: string;
+  prizeIndex: number;
+  prizeCount: number;
+  prizeName: string;
+  prizeValue: string;
+  status: "credited" | "pending";
+  kind: "cash" | "physical";
+  remainingSpins: number;
+  publicConfiguration: PublicWheelConfiguration;
+};
 
 type WheelSlice = {
   id: string;
   label: string;
   prizeName: string;
-  probability: number;
   imageUrl: string | null;
   tone: "cream" | "sand";
 };
@@ -35,7 +48,7 @@ function slicePath(startAngle: number, endAngle: number) {
   return `M 150 150 L ${start.x} ${start.y} A 127 127 0 ${largeArc} 1 ${end.x} ${end.y} Z`;
 }
 
-function toWheelSlice(prize: WheelPrizeConfiguration, index: number): WheelSlice {
+function toWheelSlice(prize: PublicWheelPrize, index: number): WheelSlice {
   const label = prize.kind === "cash" && prize.amount !== null
     ? new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(prize.amount)
     : prize.title;
@@ -43,30 +56,45 @@ function toWheelSlice(prize: WheelPrizeConfiguration, index: number): WheelSlice
     id: prize.id,
     label,
     prizeName: displayWheelPrize(prize),
-    probability: prize.probability,
     imageUrl: prize.imageUrl,
     tone: index % 2 === 0 ? "cream" : "sand",
   };
 }
 
-function WheelIllustration({ slices }: { slices: WheelSlice[] }) {
+function WheelIllustration({
+  slices,
+  rotation,
+  isSpinning,
+}: {
+  slices: WheelSlice[];
+  rotation: number;
+  isSpinning: boolean;
+}) {
   let currentAngle = 0;
-  const totalProbability = slices.reduce((total, slice) => total + slice.probability, 0);
   return (
     <div className="wheel-stage" aria-label="Roue des lots configurés">
       <div className="wheel-pedestal" aria-hidden="true" />
       <div className="wheel-rim">
         <div className="wheel-lights" aria-hidden="true" />
         <div className="wheel-pointer" aria-hidden="true" />
-        <svg className="wheel-face" viewBox="0 0 300 300" role="img" aria-label="Lots et probabilités configurés dans l’administration">
+        <svg
+          className="wheel-face"
+          viewBox="0 0 300 300"
+          role="img"
+          aria-label="Lots présentés sur la roue"
+          style={{
+            transform: `rotate(${rotation}deg)`,
+            transition: isSpinning ? "transform 5.2s cubic-bezier(.12,.68,.12,1)" : "none",
+          }}
+        >
           {slices.map((slice) => {
             const startAngle = currentAngle;
-            const endAngle = startAngle + 360 * slice.probability / totalProbability;
+            const endAngle = startAngle + 360 / Math.max(1, slices.length);
             currentAngle = endAngle;
             const angle = startAngle + (endAngle - startAngle) / 2;
             const position = polarPoint(150, 150, 83, angle);
             return (
-              <g key={slice.id} aria-label={`${slice.prizeName}, ${slice.probability}%`}>
+              <g key={slice.id} aria-label={slice.prizeName}>
                 <path d={slicePath(startAngle, endAngle)} className={`wheel-slice wheel-slice-${slice.tone}`} />
                 {slice.imageUrl ? (
                   <image
@@ -107,6 +135,12 @@ function WheelIllustration({ slices }: { slices: WheelSlice[] }) {
 
 export default function WheelPage() {
   const [, navigate] = useLocation();
+  const { toast } = useToast();
+  const [rotation, setRotation] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [drawResult, setDrawResult] = useState<WheelDrawResponse | null>(null);
+  const rotationRef = useRef(0);
+  const animationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const configQuery = useQuery<PublicWheelConfiguration>({
     queryKey: ["/api/wheel/config"],
   });
@@ -114,7 +148,57 @@ export default function WheelPage() {
     queryKey: ["/api/wheel/spins"],
     refetchInterval: 15_000,
   });
-  const config = configQuery.data ?? getPublicWheelConfiguration(DEFAULT_WHEEL_CONFIGURATION);
+  const drawMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/wheel/draw", {});
+      return response.json() as Promise<WheelDrawResponse>;
+    },
+    onSuccess: (result) => {
+      queryClient.setQueryData(["/api/wheel/config"], result.publicConfiguration);
+      queryClient.setQueryData(["/api/wheel/spins"], { availableSpins: result.remainingSpins });
+      void queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      void queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
+      void queryClient.invalidateQueries({ queryKey: ["/api/wheel/rewards/history"] });
+
+      const selectedCenter = (result.prizeIndex + 0.5) * 360 / Math.max(1, result.prizeCount);
+      const alignToPointer = (360 - selectedCenter % 360) % 360;
+      const targetRotation = rotationRef.current + (5 * 360) + alignToPointer;
+      rotationRef.current = targetRotation;
+      setDrawResult(null);
+      setIsAnimating(true);
+      setRotation(targetRotation);
+
+      if (animationTimer.current) clearTimeout(animationTimer.current);
+      animationTimer.current = setTimeout(() => {
+        setIsAnimating(false);
+        setDrawResult(result);
+        toast({
+          title: result.status === "credited" ? "Gain crédité" : "Lot gagné",
+          description: result.status === "credited"
+            ? `${result.prizeValue} a été ajouté à votre solde des revenus.`
+            : `${result.prizeValue} — remise à confirmer par l’administration.`,
+        });
+      }, 5_250);
+    },
+    onError: (error: Error) => {
+      void queryClient.invalidateQueries({ queryKey: ["/api/wheel/spins"] });
+      toast({
+        title: "Tirage impossible",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  useEffect(() => () => {
+    if (animationTimer.current) clearTimeout(animationTimer.current);
+  }, []);
+
+  const config = configQuery.data ?? {
+    buyerSpinsPerPurchase: 0,
+    referralSpinsPerPurchase: 0,
+    prizes: [],
+  };
   const wheelSlices = config.prizes.map(toWheelSlice);
   const tickerValues = config.prizes.map(displayWheelPrize);
   const tickerFirstRow = tickerValues;
@@ -122,6 +206,8 @@ export default function WheelPage() {
   const spinCount = spinsQuery.isPending || spinsQuery.isError
     ? "—"
     : spinsQuery.data?.availableSpins ?? "—";
+  const availableSpins = spinsQuery.data?.availableSpins ?? 0;
+  const drawBusy = drawMutation.isPending || isAnimating;
 
   return (
     <main className="wheel-page">
@@ -150,7 +236,7 @@ export default function WheelPage() {
           <p className="wheel-keep-going">Continuez à rouler !</p>
         </header>
 
-        <div className="wheel-ticker-stack" aria-label="Lots actifs de la roue">
+        <div className="wheel-ticker-stack" aria-label="Lots présentés sur la roue">
           <div className="wheel-ticker">
             <div className="wheel-ticker-track">
               {tickerFirstRow.map((value, index) => <span key={`top-${index}-${value}`}>{value}</span>)}
@@ -163,7 +249,7 @@ export default function WheelPage() {
           </div>
         </div>
 
-        <WheelIllustration slices={wheelSlices} />
+        <WheelIllustration slices={wheelSlices} rotation={rotation} isSpinning={isAnimating} />
 
         <div className="wheel-spins" aria-label={`Nombre de tirages restants : ${spinCount}`}>
           <span>Nombre de tirages restants: <strong>{spinCount}</strong></span>
@@ -171,10 +257,23 @@ export default function WheelPage() {
         <button
           type="button"
           className="wheel-draw-button"
-          disabled
+          disabled={drawBusy || configQuery.isError || !configQuery.data || spinsQuery.isError || availableSpins < 1}
+          aria-busy={drawBusy}
+          onClick={() => {
+            setDrawResult(null);
+            drawMutation.mutate();
+          }}
+          data-testid="button-wheel-draw"
         >
-          <span>Lancer le tirage</span>
+          <span>{drawBusy ? "Tirage en cours…" : "Lancer le tirage"}</span>
         </button>
+        {drawResult && !isAnimating && (
+          <p className="wheel-draw-result" role="status">
+            {drawResult.status === "credited"
+              ? `Gain crédité : ${drawResult.prizeValue}`
+              : `Lot gagné : ${drawResult.prizeValue} — remise en attente`}
+          </p>
+        )}
         <section className="wheel-event" aria-labelledby="wheel-event-title">
           <h2 id="wheel-event-title">PRÉSENTATION DE L'ÉVÉNEMENT</h2>
           <div className="wheel-event-card">
@@ -185,21 +284,13 @@ export default function WheelPage() {
               Chaque achat payant confirmé vous attribue {config.buyerSpinsPerPurchase} tour{config.buyerSpinsPerPurchase === 1 ? "" : "s"}.
               {" "}Chaque achat payant confirmé réalisé par votre filleul direct vous attribue {config.referralSpinsPerPurchase} tour{config.referralSpinsPerPurchase === 1 ? "" : "s"}.
             </p>
-            <details className="wheel-probabilities">
-              <summary>Probabilités des lots actifs</summary>
-              <ul>
-                {config.prizes.map((prize) => (
-                  <li key={prize.id}>
-                    <span>{displayWheelPrize(prize)}</span>
-                    <strong>{prize.probability}%</strong>
-                  </li>
-                ))}
-              </ul>
-            </details>
           </div>
         </section>
         {configQuery.isError && (
-          <p className="wheel-config-warning" role="alert">Impossible de confirmer la configuration de la roue. Les montants et probabilités affichés ne sont pas vérifiés.</p>
+          <p className="wheel-config-warning" role="alert">Impossible de charger la roue. Le tirage est temporairement désactivé.</p>
+        )}
+        {spinsQuery.isError && (
+          <p className="wheel-config-warning" role="alert">Impossible de vérifier vos tours disponibles. Réessayez dans quelques instants.</p>
         )}
 
       </div>

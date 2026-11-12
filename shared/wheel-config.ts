@@ -69,10 +69,14 @@ export const wheelConfigurationSchema = z.object({
 
 export type WheelPrizeConfiguration = z.infer<typeof wheelPrizeSchema>;
 export type WheelConfiguration = z.infer<typeof wheelConfigurationSchema>;
+export type PublicWheelPrize = Pick<
+  WheelPrizeConfiguration,
+  "id" | "title" | "kind" | "amount" | "currency" | "imageUrl"
+>;
 export type PublicWheelConfiguration = {
   buyerSpinsPerPurchase: number;
   referralSpinsPerPurchase: number;
-  prizes: WheelPrizeConfiguration[];
+  prizes: PublicWheelPrize[];
 };
 
 export const DEFAULT_WHEEL_CONFIGURATION: WheelConfiguration = {
@@ -97,7 +101,9 @@ export function parseWheelConfiguration(value: string | null | undefined): Wheel
   return wheelConfigurationSchema.parse(JSON.parse(value));
 }
 
-export function displayWheelPrize(prize: WheelPrizeConfiguration): string {
+export function displayWheelPrize(
+  prize: Pick<WheelPrizeConfiguration, "kind" | "amount" | "currency" | "title">,
+): string {
   if (prize.kind === "cash" && prize.amount !== null) {
     return `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(prize.amount)} ${prize.currency}`;
   }
@@ -108,6 +114,52 @@ export function getPublicWheelConfiguration(configuration: WheelConfiguration): 
   return {
     buyerSpinsPerPurchase: configuration.buyerSpinsPerPurchase,
     referralSpinsPerPurchase: configuration.referralSpinsPerPurchase,
-    prizes: configuration.prizes.filter((prize) => prize.active && prize.probability > 0),
+    prizes: configuration.prizes.map(({ id, title, kind, amount, currency, imageUrl }) => ({
+      id,
+      title,
+      kind,
+      amount,
+      currency,
+      imageUrl,
+    })),
   };
+}
+
+const WHEEL_PROBABILITY_SCALE = 100_000_000;
+
+export function getWheelDrawWeightTotal(configuration: WheelConfiguration): number {
+  return configuration.prizes.reduce((total, prize) => (
+    total + (prize.active && prize.probability > 0
+      ? Math.max(1, Math.round(prize.probability * WHEEL_PROBABILITY_SCALE))
+      : 0)
+  ), 0);
+}
+
+export function selectWeightedWheelPrize(
+  configuration: WheelConfiguration,
+  randomRoll: number,
+): { prize: WheelPrizeConfiguration; index: number } {
+  const eligible = configuration.prizes
+    .map((prize, index) => ({
+      prize,
+      index,
+      weight: prize.active && prize.probability > 0
+        ? Math.max(1, Math.round(prize.probability * WHEEL_PROBABILITY_SCALE))
+        : 0,
+    }))
+    .filter((entry) => entry.weight > 0);
+  const totalWeight = getWheelDrawWeightTotal(configuration);
+
+  if (totalWeight <= 0) throw new Error("Aucun lot gagnable n’est configuré.");
+  if (!Number.isSafeInteger(randomRoll) || randomRoll < 0 || randomRoll >= totalWeight) {
+    throw new Error("Tirage aléatoire invalide.");
+  }
+
+  let remaining = randomRoll;
+  for (const entry of eligible) {
+    if (remaining < entry.weight) return { prize: entry.prize, index: entry.index };
+    remaining -= entry.weight;
+  }
+
+  throw new Error("Impossible de déterminer le lot tiré.");
 }

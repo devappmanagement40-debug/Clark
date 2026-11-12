@@ -310,6 +310,19 @@
   filter: saturate(.96);
 }
 
+.wheel-draw-button:not(:disabled) {
+  cursor: pointer;
+}
+
+.wheel-draw-result {
+  min-height: 20px;
+  margin: 8px 0 0;
+  color: #542825;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
 .wheel-event {
   margin: 39px 0 0;
 }

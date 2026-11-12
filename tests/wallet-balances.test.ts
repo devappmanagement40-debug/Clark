@@ -80,6 +80,7 @@ test("withdrawal allocation only consumes earnings and rejects insufficient amou
 test("only earnings credits increase cumulative income, not deposits or withdrawal refunds", () => {
   assert.equal(getTotalIncomeCredit("deposit", "deposit", 500), 0);
   assert.equal(getTotalIncomeCredit("earnings", "commission", 140), 140);
+  assert.equal(getTotalIncomeCredit("earnings", "wheel_reward", 777), 777);
   assert.equal(getTotalIncomeCredit("earnings", "withdrawal_refund", 200), 0);
   assert.equal(getTotalIncomeCredit("earnings", "earning", 70, 70), 70);
 });
@@ -95,6 +96,11 @@ test("cumulative income includes withdrawable ledger credits but excludes deposi
       type: "commission",
       amount: "28",
       walletImpact: JSON.stringify({ depositDelta: 0, earningsDelta: 28, legacyEarningsDelta: 0 }),
+    },
+    {
+      type: "wheel_reward",
+      amount: "777",
+      walletImpact: JSON.stringify({ depositDelta: 0, earningsDelta: 777, legacyEarningsDelta: 0 }),
     },
     {
       type: "admin_adjustment",
@@ -115,5 +121,5 @@ test("cumulative income includes withdrawable ledger credits but excludes deposi
     { type: "bonus", amount: "500", walletImpact: null },
   ]);
 
-  assert.equal(total, 153);
+  assert.equal(total, 930);
 });

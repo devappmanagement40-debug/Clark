@@ -43,6 +43,7 @@ const HISTORIC_INCOME_TYPES = new Set([
   "deposit_commission",
   "task_reward",
   "gift_code",
+  "wheel_reward",
   "staking_release",
 ]);
 

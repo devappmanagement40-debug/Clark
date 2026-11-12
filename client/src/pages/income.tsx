@@ -34,6 +34,7 @@ const incomeTypes = new Set([
   "deposit_commission",
   "task_reward",
   "gift_code",
+  "wheel_reward",
   "admin_adjustment",
 ]);
 

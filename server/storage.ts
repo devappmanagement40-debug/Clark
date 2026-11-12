@@ -10,6 +10,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, gte, lte, or, isNull, inArray } from "drizzle-orm";
+import { randomInt } from "node:crypto";
 import bcrypt from "bcrypt";
 import { getDemoReferralPreview } from "./demo-referrals";
 import { notifyTelegramPaymentEvent } from "./telegram-events";
@@ -23,7 +24,13 @@ import {
   type WalletBalanceSummary,
 } from "@shared/wallet-balances";
 import { isPurchaseLimitReached } from "@shared/product-purchase-limit";
-import { parseWheelConfiguration } from "@shared/wheel-config";
+import {
+  displayWheelPrize,
+  getWheelDrawWeightTotal,
+  parseWheelConfiguration,
+  selectWeightedWheelPrize,
+  type PublicWheelConfiguration,
+} from "@shared/wheel-config";
 import {
   DEFAULT_DEPOSIT_COMMISSION_LEVEL1,
   DEFAULT_DEPOSIT_COMMISSION_LEVEL2,
@@ -95,6 +102,18 @@ export interface IStorage {
   getAllUserProducts(userId: number): Promise<{ userProduct: UserProduct; product: Product }[]>;
   purchaseProduct(userId: number, productId: number, assignedByAdmin?: boolean): Promise<UserProduct>;
   getWheelSpinCount(userId: number): Promise<number>;
+  drawWheel(userId: number): Promise<{
+    rewardId: number;
+    prizeId: string;
+    prizeIndex: number;
+    prizeCount: number;
+    prizeName: string;
+    prizeValue: string;
+    status: "credited" | "pending";
+    kind: "cash" | "physical";
+    remainingSpins: number;
+    publicConfiguration: PublicWheelConfiguration;
+  }>;
   getWheelRewardHistory(userId: number): Promise<Array<{
     id: number;
     prizeName: string;
@@ -102,6 +121,15 @@ export interface IStorage {
     status: string;
     createdAt: Date;
   }>>;
+  getPendingWheelRewards(): Promise<Array<{
+    id: number;
+    userId: number;
+    fullName: string;
+    prizeName: string;
+    prizeValue: string;
+    createdAt: Date;
+  }>>;
+  markWheelRewardDelivered(rewardId: number, adminId: number): Promise<boolean>;
   removeUserProduct(userId: number, productId: number): Promise<void>;
   updateUserProduct(id: number, data: Partial<UserProduct>): Promise<UserProduct>;
   processEarnings(): Promise<void>;
@@ -343,6 +371,7 @@ export class DatabaseStorage implements IStorage {
         "deposit_commission",
         "task_reward",
         "gift_code",
+        "wheel_reward",
         "staking_release",
         "admin_adjustment",
       ]),
@@ -816,8 +845,113 @@ export class DatabaseStorage implements IStorage {
   async getWheelSpinCount(userId: number): Promise<number> {
     const [result] = await db.select({
       count: sql<number>`count(*)`,
-    }).from(wheelSpinCredits).where(eq(wheelSpinCredits.userId, userId));
+    }).from(wheelSpinCredits)
+      .leftJoin(wheelRewardRecords, eq(wheelRewardRecords.spinCreditId, wheelSpinCredits.id))
+      .where(and(
+        eq(wheelSpinCredits.userId, userId),
+        isNull(wheelRewardRecords.id),
+      ));
     return Number(result?.count ?? 0);
+  }
+
+  async drawWheel(userId: number) {
+    return db.transaction(async (tx) => {
+      const [availableCredit] = await tx.select({
+        id: wheelSpinCredits.id,
+      })
+        .from(wheelSpinCredits)
+        .leftJoin(wheelRewardRecords, eq(wheelRewardRecords.spinCreditId, wheelSpinCredits.id))
+        .where(and(
+          eq(wheelSpinCredits.userId, userId),
+          isNull(wheelRewardRecords.id),
+        ))
+        .orderBy(wheelSpinCredits.id)
+        .limit(1)
+        .for("update", { of: wheelSpinCredits, skipLocked: true });
+
+      if (!availableCredit) throw new Error("Vous n’avez plus de tour disponible.");
+
+      const [setting] = await tx.select({ value: platformSettings.value })
+        .from(platformSettings)
+        .where(eq(platformSettings.key, "wheelConfiguration"));
+      const configuration = parseWheelConfiguration(setting?.value);
+      const totalWeight = getWheelDrawWeightTotal(configuration);
+      if (totalWeight <= 0) throw new Error("Aucun lot gagnable n’est configuré.");
+      const selected = selectWeightedWheelPrize(configuration, randomInt(totalWeight));
+      const prize = selected.prize;
+      const isCashPrize = prize.kind === "cash";
+      const prizeValue = isCashPrize
+        ? displayWheelPrize(prize)
+        : prize.title;
+      const status: "credited" | "pending" = isCashPrize ? "credited" : "pending";
+      const [user] = await tx.select().from(users)
+        .where(eq(users.id, userId))
+        .for("update");
+      if (!user) throw new Error("Utilisateur non trouvé.");
+
+      const [reward] = await tx.insert(wheelRewardRecords).values({
+        userId,
+        spinCreditId: availableCredit.id,
+        prizeName: prize.title,
+        prizeValue,
+        status,
+      }).returning();
+
+      if (isCashPrize && prize.amount !== null) {
+        const amount = prize.amount.toFixed(2);
+        const [transaction] = await tx.insert(transactions).values({
+          userId,
+          type: "wheel_reward",
+          amount,
+          description: `Gain de la roue : ${prizeValue}`,
+          walletImpact: JSON.stringify({
+            depositDelta: 0,
+            earningsDelta: prize.amount,
+            legacyDepositDelta: 0,
+            legacyEarningsDelta: 0,
+          }),
+        }).returning();
+        await tx.update(users).set({
+          balance: sql`${users.balance} + ${amount}::numeric`,
+          earningsBalance: sql`${users.earningsBalance} + ${amount}::numeric`,
+          totalEarnings: sql`${users.totalEarnings} + ${amount}::numeric`,
+          ...(!user.walletActivatedAt ? { walletActivatedAt: transaction.createdAt } : {}),
+        }).where(eq(users.id, userId));
+      }
+
+      const [remaining] = await tx.select({
+        count: sql<number>`count(*)`,
+      }).from(wheelSpinCredits)
+        .leftJoin(wheelRewardRecords, eq(wheelRewardRecords.spinCreditId, wheelSpinCredits.id))
+        .where(and(
+          eq(wheelSpinCredits.userId, userId),
+          isNull(wheelRewardRecords.id),
+        ));
+
+      return {
+        rewardId: reward.id,
+        prizeId: prize.id,
+        prizeIndex: selected.index,
+        prizeCount: configuration.prizes.length,
+        prizeName: prize.title,
+        prizeValue,
+        status,
+        kind: prize.kind,
+        remainingSpins: Number(remaining?.count ?? 0),
+        publicConfiguration: {
+          buyerSpinsPerPurchase: configuration.buyerSpinsPerPurchase,
+          referralSpinsPerPurchase: configuration.referralSpinsPerPurchase,
+          prizes: configuration.prizes.map(({ id, title, kind, amount, currency, imageUrl }) => ({
+            id,
+            title,
+            kind,
+            amount,
+            currency,
+            imageUrl,
+          })),
+        },
+      };
+    });
   }
 
   async getWheelRewardHistory(userId: number) {
@@ -832,6 +966,42 @@ export class DatabaseStorage implements IStorage {
       .where(eq(wheelRewardRecords.userId, userId))
       .orderBy(desc(wheelRewardRecords.createdAt), desc(wheelRewardRecords.id))
       .limit(100);
+  }
+
+  async getPendingWheelRewards() {
+    return db.select({
+      id: wheelRewardRecords.id,
+      userId: wheelRewardRecords.userId,
+      fullName: users.fullName,
+      prizeName: wheelRewardRecords.prizeName,
+      prizeValue: wheelRewardRecords.prizeValue,
+      createdAt: wheelRewardRecords.createdAt,
+    })
+      .from(wheelRewardRecords)
+      .innerJoin(users, eq(users.id, wheelRewardRecords.userId))
+      .where(eq(wheelRewardRecords.status, "pending"))
+      .orderBy(desc(wheelRewardRecords.createdAt), desc(wheelRewardRecords.id))
+      .limit(200);
+  }
+
+  async markWheelRewardDelivered(rewardId: number, adminId: number): Promise<boolean> {
+    return db.transaction(async (tx) => {
+      const [updated] = await tx.update(wheelRewardRecords)
+        .set({ status: "delivered" })
+        .where(and(
+          eq(wheelRewardRecords.id, rewardId),
+          eq(wheelRewardRecords.status, "pending"),
+        ))
+        .returning({ id: wheelRewardRecords.id, userId: wheelRewardRecords.userId });
+      if (!updated) return false;
+      await tx.insert(adminAuditLog).values({
+        adminId,
+        action: "deliver_wheel_reward",
+        targetUserId: updated.userId,
+        details: `Récompense de roue ${updated.id} marquée comme remise.`,
+      });
+      return true;
+    });
   }
 
   async updateUserProduct(id: number, data: Partial<UserProduct>): Promise<UserProduct> {
