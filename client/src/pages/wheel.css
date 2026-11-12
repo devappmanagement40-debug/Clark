@@ -326,15 +326,23 @@
   background: #fff;
 }
 
-.wheel-event-kicker {
-  display: block;
-  color: #eb5e39;
-  font-size: 17px;
-  line-height: 1.2;
+.wheel-event-note-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.wheel-event-note-heading h3 {
+  margin: 0;
+  color: #5a2922;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.1;
 }
 
 .wheel-event-card p {
-  margin: 1px 0 12px;
+  margin: 0 0 12px;
   color: #28221f;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 17px;

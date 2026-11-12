@@ -170,7 +170,9 @@ function WheelPage() {
         <section className="wheel-event" aria-labelledby="wheel-event-title">
           <h2 id="wheel-event-title">PRÉSENTATION DE L'ÉVÉNEMENT</h2>
           <div className="wheel-event-card">
-            <span className="wheel-event-kicker" aria-hidden="true">📣📣📣 :</span>
+            <div className="wheel-event-note-heading">
+              <h3>À savoir</h3>
+            </div>
             <p>
               Chaque achat confirmé d’un produit vous donne droit à un tour de roue supplémentaire.
               {" "}Chaque achat confirmé par un filleul vous donne droit à un tour de roue.
