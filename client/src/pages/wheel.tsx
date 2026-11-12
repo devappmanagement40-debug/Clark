@@ -317,12 +317,11 @@ export default function WheelPage() {
           aria-describedby="wheel-win-description"
         >
           <div className="wheel-win-copy">
-            <DialogTitle className="wheel-win-title">Félicitations, vous avez gagné !</DialogTitle>
-            <p className="wheel-win-prize">{drawResult?.prizeValue}</p>
+            <DialogTitle className="wheel-win-prize">{drawResult?.prizeValue}</DialogTitle>
             <DialogDescription id="wheel-win-description" className="wheel-win-description">
-              {drawResult?.status === "credited"
-                ? `${wonPrize?.title ?? "Votre gain"} a été crédité à votre solde des revenus.`
-                : `${wonPrize?.title ?? "Votre lot"} est en attente de confirmation pour sa remise.`}
+              {drawResult?.kind === "cash"
+                ? "Félicitations, vous avez gagné ce montant. Il a été crédité à votre solde des revenus."
+                : `Félicitations, vous avez gagné ${wonPrize?.title ?? "ce lot"}. Sa remise est en attente de confirmation par l’administration.`}
             </DialogDescription>
           </div>
           <button

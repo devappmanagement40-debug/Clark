@@ -514,14 +514,8 @@
   text-align: center;
 }
 
-.wheel-win-title {
-  font-size: 19px;
-  font-weight: 500;
-  line-height: 1.4;
-}
-
 .wheel-win-prize {
-  margin: 18px 0 2px;
+  margin: 0 0 2px;
   color: #183e77;
   font-size: 28px;
   font-weight: 600;
@@ -557,5 +551,5 @@
 @media (max-width: 390px) {
   .wheel-win-dialog { width: calc(100vw - 36px); }
   .wheel-win-copy { padding-right: 18px; padding-left: 18px; }
-  .wheel-win-title { font-size: 18px; }
+  .wheel-win-prize { font-size: 25px; }
 }
