@@ -349,6 +349,53 @@
   line-height: 1.2;
 }
 
+.wheel-probabilities {
+  border-top: 1px solid rgb(115 76 46 / 16%);
+  padding-top: 10px;
+  color: #4f2d27;
+  font-size: 13px;
+}
+
+.wheel-probabilities summary {
+  width: fit-content;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wheel-probabilities ul {
+  display: grid;
+  gap: 5px;
+  margin: 9px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wheel-probabilities li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgb(115 76 46 / 10%);
+  padding: 4px 0;
+}
+
+.wheel-probabilities li strong {
+  flex: none;
+  color: #0b3679;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.wheel-config-warning {
+  margin: 12px 0;
+  border-radius: 8px;
+  padding: 9px 12px;
+  background: #fff4dc;
+  color: #6b3d16;
+  font-size: 12px;
+  text-align: center;
+}
+
 .wheel-history-tab {
   position: absolute;
   z-index: 48;

@@ -98,10 +98,11 @@ export const wheelSpinCredits = pgTable("wheel_spin_credits", {
   userId: integer("user_id").notNull().references(() => users.id),
   sourceUserProductId: integer("source_user_product_id").notNull().references(() => userProducts.id),
   sourceType: text("source_type").notNull(),
+  spinNumber: integer("spin_number").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
   uniquePurchaseCredit: uniqueIndex("wheel_spin_credits_user_purchase_unique")
-    .on(table.userId, table.sourceUserProductId),
+    .on(table.userId, table.sourceUserProductId, table.spinNumber),
 }));
 
 export const wheelRewardRecords = pgTable("wheel_reward_records", {

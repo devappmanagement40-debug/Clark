@@ -23,6 +23,7 @@ import {
   type WalletBalanceSummary,
 } from "@shared/wallet-balances";
 import { isPurchaseLimitReached } from "@shared/product-purchase-limit";
+import { parseWheelConfiguration } from "@shared/wheel-config";
 import {
   DEFAULT_DEPOSIT_COMMISSION_LEVEL1,
   DEFAULT_DEPOSIT_COMMISSION_LEVEL2,
@@ -729,6 +730,7 @@ export class DatabaseStorage implements IStorage {
       const directReferrer = user.referredBy
         ? await this.getUserByReferralCode(user.referredBy)
         : undefined;
+      const wheelConfiguration = parseWheelConfiguration(await this.getSetting("wheelConfiguration"));
       // Check if this is user's first paid investment
       const existingPaidProducts = await db.select()
         .from(userProducts)
@@ -765,17 +767,27 @@ export class DatabaseStorage implements IStorage {
           assignedByAdmin,
           lastEarningDate: new Date(),
         }).returning();
-        await tx.insert(wheelSpinCredits).values({
-          userId,
-          sourceUserProductId: created.id,
-          sourceType: "purchase",
-        }).onConflictDoNothing();
+        if (wheelConfiguration.buyerSpinsPerPurchase > 0) {
+          await tx.insert(wheelSpinCredits).values(
+            Array.from({ length: wheelConfiguration.buyerSpinsPerPurchase }, (_, spinNumber) => ({
+              userId,
+              sourceUserProductId: created.id,
+              sourceType: "purchase",
+              spinNumber,
+            })),
+          ).onConflictDoNothing();
+        }
         if (directReferrer && directReferrer.id !== userId) {
-          await tx.insert(wheelSpinCredits).values({
-            userId: directReferrer.id,
-            sourceUserProductId: created.id,
-            sourceType: "referral_purchase",
-          }).onConflictDoNothing();
+          if (wheelConfiguration.referralSpinsPerPurchase > 0) {
+            await tx.insert(wheelSpinCredits).values(
+              Array.from({ length: wheelConfiguration.referralSpinsPerPurchase }, (_, spinNumber) => ({
+                userId: directReferrer.id,
+                sourceUserProductId: created.id,
+                sourceType: "referral_purchase",
+                spinNumber,
+              })),
+            ).onConflictDoNothing();
+          }
         }
         return created;
       });

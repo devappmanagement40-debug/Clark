@@ -17,6 +17,7 @@ import AdminGiftCodes from "@/components/admin/gift-codes";
 import AdminCountries from "@/components/admin/countries";
 import AdminBlockedIps from "@/components/admin/blocked-ips";
 import AdminMessages from "@/components/admin/messages";
+import AdminWheelSettings from "@/components/admin/wheel-settings";
 import "./admin.css";
 
 export default function AdminPage() {
@@ -56,6 +57,7 @@ export default function AdminPage() {
               <TabsTrigger value="payment-numbers" data-testid="tab-payment-numbers">Numéros</TabsTrigger>
               <TabsTrigger value="countries" data-testid="tab-countries">Pays</TabsTrigger>
               <TabsTrigger value="giftcodes" data-testid="tab-giftcodes">Codes Cadeaux</TabsTrigger>
+              <TabsTrigger value="wheel" data-testid="tab-wheel">Roue</TabsTrigger>
               <TabsTrigger value="settings" data-testid="tab-settings">Parametres</TabsTrigger>
               <TabsTrigger value="security" data-testid="tab-security">Sécurité</TabsTrigger>
             </TabsList>
@@ -103,6 +105,10 @@ export default function AdminPage() {
 
           <TabsContent value="giftcodes" className="mt-4">
             <AdminGiftCodes />
+          </TabsContent>
+
+          <TabsContent value="wheel" className="mt-4">
+            <AdminWheelSettings />
           </TabsContent>
 
           <TabsContent value="settings" className="mt-4">

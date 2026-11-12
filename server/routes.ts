@@ -55,6 +55,11 @@ import {
 } from "@shared/platform-settings";
 import { toPublicDepositHistoryItem, toPublicWithdrawalHistoryItem } from "./public-transaction-history";
 import { z } from "zod";
+import {
+  getPublicWheelConfiguration,
+  parseWheelConfiguration,
+  wheelConfigurationSchema,
+} from "@shared/wheel-config";
 import ConnectPgSimple from "connect-pg-simple";
 import { 
   initiatePayment, 
@@ -1007,6 +1012,46 @@ export async function registerRoutes(
         cause = databaseError.cause;
       }
       res.status(500).json({ message: error.message || "Impossible de charger l’historique des récompenses." });
+    }
+  });
+
+  app.get("/api/wheel/config", requireAuth, async (_req, res) => {
+    try {
+      const configuration = parseWheelConfiguration(await storage.getSetting("wheelConfiguration"));
+      res.json(getPublicWheelConfiguration(configuration));
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Impossible de charger la configuration de la roue." });
+    }
+  });
+
+  app.get("/api/admin/wheel/config", requireAdmin, async (_req, res) => {
+    try {
+      res.json(parseWheelConfiguration(await storage.getSetting("wheelConfiguration")));
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Impossible de charger la configuration de la roue." });
+    }
+  });
+
+  app.put("/api/admin/wheel/config", requireAdmin, async (req, res) => {
+    const parsed = wheelConfigurationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        message: parsed.error.issues[0]?.message || "Vérifiez les lots et leurs probabilités.",
+      });
+    }
+
+    try {
+      const serialized = JSON.stringify(parsed.data);
+      await storage.setSetting("wheelConfiguration", serialized, req.session.userId);
+      await storage.logAdminAction(
+        req.session.userId!,
+        "update_wheel_configuration",
+        null,
+        `Configuration de la roue mise à jour : ${parsed.data.prizes.length} lots, ${parsed.data.buyerSpinsPerPurchase} tours acheteur et ${parsed.data.referralSpinsPerPurchase} tours parrain.`,
+      );
+      res.json(parsed.data);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Impossible d’enregistrer la configuration de la roue." });
     }
   });
 
