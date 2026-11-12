@@ -2,7 +2,7 @@ import {
   users, products, userProducts, deposits, withdrawals, withdrawalWallets,
   withdrawalFeePayments,
   paymentChannels, paymentNumbers, stakingProducts, userStakings, referralCommissions, tasks, userTasks, transactions, platformSettings, adminAuditLog,
-  giftCodes, giftCodeClaims, countries, clapayPayouts,
+  giftCodes, giftCodeClaims, countries, clapayPayouts, wheelSpinCredits,
   type User, type Product, type UserProduct, type Deposit, type Withdrawal, type WithdrawalWallet,
   type PaymentChannel, type PaymentNumber, type StakingProduct, type UserStaking, type ReferralCommission, type Task, type InsertTask, type UserTask, type Transaction, type PlatformSetting,
   type GiftCode, type GiftCodeClaim, type Country,
@@ -93,6 +93,7 @@ export interface IStorage {
   getUserProducts(userId: number): Promise<(UserProduct & { product: Product })[]>;
   getAllUserProducts(userId: number): Promise<{ userProduct: UserProduct; product: Product }[]>;
   purchaseProduct(userId: number, productId: number, assignedByAdmin?: boolean): Promise<UserProduct>;
+  getWheelSpinCount(userId: number): Promise<number>;
   removeUserProduct(userId: number, productId: number): Promise<void>;
   updateUserProduct(id: number, data: Partial<UserProduct>): Promise<UserProduct>;
   processEarnings(): Promise<void>;
@@ -718,6 +719,9 @@ export class DatabaseStorage implements IStorage {
 
     let userProduct: UserProduct | undefined;
     if (!product.isFree && !assignedByAdmin) {
+      const directReferrer = user.referredBy
+        ? await this.getUserByReferralCode(user.referredBy)
+        : undefined;
       // Check if this is user's first paid investment
       const existingPaidProducts = await db.select()
         .from(userProducts)
@@ -754,6 +758,18 @@ export class DatabaseStorage implements IStorage {
           assignedByAdmin,
           lastEarningDate: new Date(),
         }).returning();
+        await tx.insert(wheelSpinCredits).values({
+          userId,
+          sourceUserProductId: created.id,
+          sourceType: "purchase",
+        }).onConflictDoNothing();
+        if (directReferrer && directReferrer.id !== userId) {
+          await tx.insert(wheelSpinCredits).values({
+            userId: directReferrer.id,
+            sourceUserProductId: created.id,
+            sourceType: "referral_purchase",
+          }).onConflictDoNothing();
+        }
         return created;
       });
       userProduct = result.result;
@@ -776,6 +792,13 @@ export class DatabaseStorage implements IStorage {
 
     if (!userProduct) throw new Error("Impossible de créer l'offre de l'utilisateur.");
     return userProduct;
+  }
+
+  async getWheelSpinCount(userId: number): Promise<number> {
+    const [result] = await db.select({
+      count: sql<number>`count(*)`,
+    }).from(wheelSpinCredits).where(eq(wheelSpinCredits.userId, userId));
+    return Number(result?.count ?? 0);
   }
 
   async updateUserProduct(id: number, data: Partial<UserProduct>): Promise<UserProduct> {

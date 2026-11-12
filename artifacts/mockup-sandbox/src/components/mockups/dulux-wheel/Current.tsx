@@ -5,9 +5,13 @@ import "./wheel.css";
 
 type WheelSlice = {
   label?: string;
-  icon?: "card" | "phone" | "gift";
+  image?: { src: string; alt: string; width: number; height: number };
   tone: "cream" | "sand";
 };
+
+const smartphonePrize = "/__mockup/images/wheel-prizes/smartphone.jpg";
+const motorcyclePrize = "/__mockup/images/wheel-prizes/motorcycle.jpg";
+const headphonesPrize = "/__mockup/images/wheel-prizes/headphones.jpg";
 
 const wheelSlices: WheelSlice[] = [
   { label: "777", tone: "cream" },
@@ -17,9 +21,9 @@ const wheelSlices: WheelSlice[] = [
   { label: "17777", tone: "cream" },
   { label: "37777", tone: "sand" },
   { label: "97777", tone: "cream" },
-  { icon: "gift", tone: "sand" },
-  { icon: "phone", tone: "cream" },
-  { icon: "card", tone: "sand" },
+  { image: { src: headphonesPrize, alt: "Casque audio", width: 42, height: 42 }, tone: "sand" },
+  { image: { src: smartphonePrize, alt: "Téléphone", width: 42, height: 42 }, tone: "cream" },
+  { image: { src: motorcyclePrize, alt: "Moto", width: 54, height: 34 }, tone: "sand" },
 ];
 
 function polarPoint(cx: number, cy: number, radius: number, angle: number) {
@@ -36,40 +40,6 @@ function slicePath(index: number) {
   return `M 150 150 L ${start.x} ${start.y} A 127 127 0 0 1 ${end.x} ${end.y} Z`;
 }
 
-function PrizeIllustration({ icon, x, y, angle }: { icon: string; x: number; y: number; angle: number }) {
-  const transform = `rotate(${angle}, ${x}, ${y})`;
-
-  if (icon === "card") {
-    return (
-      <g transform={transform} aria-hidden="true">
-        <rect x={x - 18} y={y - 11} width="36" height="22" rx="3" fill="#19b9bd" stroke="#164b66" strokeWidth="2" />
-        <path d={`M${x - 16} ${y - 4}h32`} stroke="#ffe88b" strokeWidth="4" />
-        <path d={`M${x - 11} ${y + 4}h10`} stroke="#fff" strokeWidth="2" opacity=".9" />
-        <circle cx={x + 10} cy={y + 4} r="3" fill="#f6c744" />
-      </g>
-    );
-  }
-
-  if (icon === "phone") {
-    return (
-      <g transform={transform} aria-hidden="true">
-        <rect x={x - 11} y={y - 19} width="22" height="38" rx="4" fill="#e7e9e5" stroke="#8d9695" strokeWidth="2" />
-        <rect x={x - 8} y={y - 14} width="16" height="27" rx="2" fill="#f8faf8" />
-        <rect x={x - 5} y={y - 8} width="10" height="3" rx="1.5" fill="#d9e2e2" />
-        <circle cx={x} cy={y + 16} r="1.5" fill="#727c7d" />
-      </g>
-    );
-  }
-
-  return (
-    <g transform={transform} aria-hidden="true">
-      <path d={`M${x - 14} ${y - 8}h28l-3 23h-22z`} fill="#d8d7e4" stroke="#aaa9bb" strokeWidth="2" />
-      <path d={`M${x - 8} ${y - 8}c0-10 16-10 16 0`} fill="none" stroke="#aaa9bb" strokeWidth="3" />
-      <path d={`M${x} ${y - 3}v10m-4-5h8`} stroke="#6c9c75" strokeWidth="2" />
-    </g>
-  );
-}
-
 function WheelIllustration() {
   return (
     <div className="wheel-stage" aria-label="Roue décorative, exemples de segments non configurés">
@@ -77,16 +47,26 @@ function WheelIllustration() {
       <div className="wheel-rim">
         <div className="wheel-lights" aria-hidden="true" />
         <div className="wheel-pointer" aria-hidden="true" />
-        <svg className="wheel-face" viewBox="0 0 300 300" role="img" aria-label="Segments illustratifs, aucun lot configuré">
+        <svg className="wheel-face" viewBox="0 0 300 300" role="img" aria-label="Montants et images des lots de la roue">
           {wheelSlices.map((slice, index) => {
             const sliceAngle = 360 / wheelSlices.length;
             const angle = index * sliceAngle + sliceAngle / 2;
             const position = polarPoint(150, 150, 83, angle);
             return (
-              <g key={`${slice.label ?? slice.icon}-${index}`}>
+              <g key={`${slice.label ?? slice.image?.alt}-${index}`}>
                 <path d={slicePath(index)} className={`wheel-slice wheel-slice-${slice.tone}`} />
-                {slice.icon ? (
-                  <PrizeIllustration icon={slice.icon} x={position.x} y={position.y} angle={angle} />
+                {slice.image ? (
+                  <image
+                    href={slice.image.src}
+                    x={position.x - slice.image.width / 2}
+                    y={position.y - slice.image.height / 2}
+                    width={slice.image.width}
+                    height={slice.image.height}
+                    preserveAspectRatio="xMidYMid meet"
+                    transform={`rotate(${angle}, ${position.x}, ${position.y})`}
+                    className="wheel-prize-image"
+                    aria-hidden="true"
+                  />
                 ) : (
                   <text
                     x={position.x}
@@ -166,11 +146,11 @@ function WheelPage() {
           <div className="wheel-ticker wheel-ticker-reverse">
             <div className="wheel-ticker-track">
               <span>Téléphone</span>
-              <span>Power bank</span>
-              <span>Carte cadeau</span>
+              <span>Moto</span>
+              <span>Casque audio</span>
               <span>Téléphone</span>
-              <span>Power bank</span>
-              <span>Carte cadeau</span>
+              <span>Moto</span>
+              <span>Casque audio</span>
             </div>
           </div>
         </div>
@@ -192,9 +172,8 @@ function WheelPage() {
           <div className="wheel-event-card">
             <span className="wheel-event-kicker" aria-hidden="true">📣📣📣 :</span>
             <p>
-              Cette section présente les lots, les montants possibles et les règles du tirage. Les conditions de
-              participation, les probabilités associées à chaque récompense et les modalités de remise seront
-              précisées avant l’ouverture. Consultez toutes les informations avant de lancer le tirage. Bonne chance !
+              Chaque achat confirmé d’un produit vous donne droit à un tour de roue supplémentaire.
+              {" "}Chaque achat confirmé par un filleul vous donne droit à un tour de roue.
             </p>
           </div>
         </section>

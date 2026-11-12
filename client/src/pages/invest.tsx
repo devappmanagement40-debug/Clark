@@ -40,6 +40,7 @@ export default function InvestPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       queryClient.invalidateQueries({ queryKey: ["/api/user/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/wheel/spins"] });
       refreshUser();
       setConfirmProduct(null);
       toast({ title: "Produit acheté !", description: "Vous commencerez à recevoir des gains demain." });

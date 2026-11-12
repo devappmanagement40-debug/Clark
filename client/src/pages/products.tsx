@@ -61,6 +61,7 @@ export default function ProductsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       queryClient.invalidateQueries({ queryKey: ["/api/user/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/wheel/spins"] });
       queryClient.invalidateQueries({ queryKey: ["/api/withdrawals/available"] });
       refreshUser();
       setSelectedProduct(null);

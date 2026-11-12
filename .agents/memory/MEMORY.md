@@ -31,3 +31,4 @@
 - [Route parameter normalization](route-parameter-normalization.md) — Normalize Express route parameters before parsing or passing them to string-only helpers.
 - [Admin-configured financial text](admin-configured-financial-text.md) — Customer-facing minimums and financial terms must reflect current admin settings, not fixed UI defaults or stale cache.
 - [Pointage retiré](pointage-disabled.md) — Ne plus proposer Pointage ni son bonus; conserver les données historiques.
+- [Attribution des tours de roue](wheel-spin-rules.md) — Un achat payant confirmé crédite un tour à l’acheteur et à son parrain direct; seuls les futurs achats sont concernés.

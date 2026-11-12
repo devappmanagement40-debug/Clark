@@ -93,6 +93,17 @@ export const userProducts = pgTable("user_products", {
   assignedByAdmin: boolean("assigned_by_admin").notNull().default(false),
 });
 
+export const wheelSpinCredits = pgTable("wheel_spin_credits", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  sourceUserProductId: integer("source_user_product_id").notNull().references(() => userProducts.id),
+  sourceType: text("source_type").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  uniquePurchaseCredit: uniqueIndex("wheel_spin_credits_user_purchase_unique")
+    .on(table.userId, table.sourceUserProductId),
+}));
+
 // Deposits
 export const deposits = pgTable("deposits", {
   id: serial("id").primaryKey(),

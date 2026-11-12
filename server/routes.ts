@@ -976,6 +976,15 @@ export async function registerRoutes(
   });
 
   // Products
+  app.get("/api/wheel/spins", requireAuth, async (req, res) => {
+    try {
+      const availableSpins = await storage.getWheelSpinCount(req.session.userId!);
+      res.json({ availableSpins });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Impossible de charger le nombre de tirages." });
+    }
+  });
+
   app.get("/api/products", requireAuth, async (req, res) => {
     try {
       const products = await storage.getProducts(true);

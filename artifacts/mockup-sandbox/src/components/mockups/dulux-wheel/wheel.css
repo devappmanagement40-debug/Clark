@@ -196,6 +196,10 @@
   letter-spacing: -.04em;
 }
 
+.wheel-prize-image {
+  mix-blend-mode: multiply;
+}
+
 .wheel-pointer {
   position: absolute;
   z-index: 3;
