@@ -105,7 +105,7 @@ The Supabase schema is managed from `shared/schema.ts` with Drizzle. On first st
 The user chose to keep the newly configured Supabase database empty of business records until the Dulux catalog is provided. Keep `SKIP_STARTUP_SEED=true` in shared environment settings so startup does not restore old records or insert legacy CATL defaults. Remove this flag only after the user approves the initial data.
 
 ### Initial administrator
-The initial administrator is created only when `ADMIN_PASSWORD` is configured as a secret. Existing administrator records keep their own login password; startup only ensures the configured admin role and PIN.
+Existing accounts keep their own login password; startup can promote the account configured by `ADMIN_PHONE` and apply its PIN. To provision a new account, use an international phone number with a `+` or `00` prefix; the server derives its country from the admin-managed country list and skips creation when the prefix is missing or ambiguous.
 
 ### Workflow
 The "Start application" workflow runs `npm run dev` and serves the app on port 5000 (mapped to external port 80).

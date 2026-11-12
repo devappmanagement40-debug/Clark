@@ -62,8 +62,6 @@ timeoutMs = 120000
 [userenv]
 
 [userenv.shared]
-ADMIN_COUNTRY = "CI"
-TELEGRAM_CHAT_ID = "-1004362035077"
 SKIP_STARTUP_SEED = "true"
 
 [userenv.development]

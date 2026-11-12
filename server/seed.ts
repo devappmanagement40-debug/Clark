@@ -11,13 +11,41 @@ import { hashAdminPin } from "./admin-pin";
 const PRODUCTION_BOOTSTRAP_VERSION = "1";
 const PRODUCTION_BOOTSTRAP_VERSION_KEY = "__production_bootstrap_version";
 
+async function inferAdminCountryFromPhone(phone: string): Promise<string | undefined> {
+  const normalizedPhone = phone.trim();
+  const digits = normalizedPhone.replace(/\D/g, "");
+  const internationalDigits = normalizedPhone.startsWith("+")
+    ? digits
+    : normalizedPhone.startsWith("00")
+      ? digits.slice(2)
+      : "";
+  if (!internationalDigits) return undefined;
+
+  const configuredCountries = await db
+    .select({ code: countries.code, phonePrefix: countries.phonePrefix })
+    .from(countries);
+  const matches = configuredCountries
+    .map((country) => ({
+      code: country.code,
+      prefix: country.phonePrefix.replace(/\D/g, ""),
+    }))
+    .filter((country) => country.prefix && internationalDigits.startsWith(country.prefix))
+    .sort((a, b) => b.prefix.length - a.prefix.length);
+
+  if (!matches.length) return undefined;
+  const longestPrefix = matches[0].prefix.length;
+  const bestMatches = new Set(
+    matches.filter((country) => country.prefix.length === longestPrefix).map((country) => country.code),
+  );
+  return bestMatches.size === 1 ? bestMatches.values().next().value : undefined;
+}
+
 async function synchronizeConfiguredAdmin() {
   const adminPhone = process.env.ADMIN_PHONE?.trim();
   if (!adminPhone) {
     console.warn("ADMIN_PHONE is not configured; administrator bootstrap skipped.");
     return;
   }
-  const adminCountry = process.env.ADMIN_COUNTRY || "TG";
   const existingAdmin = await db.select().from(users).where(eq(users.phone, adminPhone));
   const adminPassword = process.env.ADMIN_PASSWORD;
   const adminPin = process.env.ADMIN_PIN;
@@ -26,22 +54,29 @@ async function synchronizeConfiguredAdmin() {
   if (existingAdmin.length === 0) {
     if (!adminPassword) {
       console.warn("No administrator exists yet; set ADMIN_PASSWORD to provision the initial admin.");
-    } else {
-      const hashedPassword = await bcrypt.hash(adminPassword, 12);
-      await db.insert(users).values({
-        fullName: "Super Admin",
-        phone: adminPhone,
-        country: adminCountry,
-        password: hashedPassword,
-        referralCode: "ADMIN1",
-        balance: "0",
-        isAdmin: true,
-        isSuperAdmin: true,
-        adminPin: hashedAdminPin,
-      });
-      console.log("Super admin created");
-      if (adminPin) console.log("Super admin PIN configured");
+      return;
     }
+
+    const adminCountry = await inferAdminCountryFromPhone(adminPhone);
+    if (!adminCountry) {
+      console.warn("Cannot provision the initial admin: use an international phone number with an unambiguous configured country prefix.");
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(adminPassword, 12);
+    await db.insert(users).values({
+      fullName: "Super Admin",
+      phone: adminPhone,
+      country: adminCountry,
+      password: hashedPassword,
+      referralCode: "ADMIN1",
+      balance: "0",
+      isAdmin: true,
+      isSuperAdmin: true,
+      adminPin: hashedAdminPin,
+    });
+    console.log("Super admin created");
+    if (adminPin) console.log("Super admin PIN configured");
     return;
   }
 
