@@ -206,11 +206,6 @@ export function CountrySelector({
           )}
           {!isLoading && countries.length === 0 && <p className="country-picker-empty">{search ? "Aucun résultat" : "Aucun pays disponible"}</p>}
         </div>
-        {includeInactive && (
-          <p className="country-picker-empty">
-            Les pays désactivés restent disponibles pour les comptes existants, mais pas pour les nouvelles inscriptions.
-          </p>
-        )}
       </section>
     </div>
   );
