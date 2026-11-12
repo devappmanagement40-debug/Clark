@@ -110,6 +110,9 @@
 .wheel-ticker-stack {
   position: relative;
   display: grid;
+  grid-template-rows: repeat(2, 32px);
+  height: 71px;
+  min-height: 71px;
   gap: 7px;
   width: calc(100% + 36px);
   margin: 14px -18px 0;
@@ -130,12 +133,7 @@
   height: 100%;
   align-items: center;
   gap: 10px;
-  animation: wheel-marquee 20s linear infinite;
-}
-
-.wheel-ticker-reverse .wheel-ticker-track {
-  animation-direction: reverse;
-  animation-duration: 24s;
+  animation: none;
 }
 
 .wheel-ticker-track span {
@@ -265,6 +263,7 @@
 .wheel-spins {
   display: flex;
   width: min(70%, 310px);
+  height: 22px;
   min-height: 22px;
   align-items: center;
   justify-content: center;
@@ -277,9 +276,15 @@
   font-size: 12px;
   font-weight: 700;
   text-shadow: 0 1px 2px rgb(112 61 22 / 35%);
+  white-space: nowrap;
 }
 
-.wheel-spins strong { font-variant-numeric: tabular-nums; }
+.wheel-spins strong {
+  display: inline-block;
+  min-width: 4ch;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
 
 .wheel-draw-button {
   position: relative;
@@ -419,9 +424,13 @@
 
 .wheel-history-tab span { font-size: 13px; font-weight: 600; }
 
-@keyframes wheel-marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+.wheel-page button {
+  transition: none;
+}
+
+.wheel-page button:active {
+  transform: none;
+  opacity: 1;
 }
 
 @media (min-width: 700px) {

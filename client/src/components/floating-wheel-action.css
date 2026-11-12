@@ -1,8 +1,6 @@
 .floating-wheel-action {
   position: fixed;
   z-index: 40;
-  top: max(12px, calc(72vh - 74px));
-  right: max(16px, env(safe-area-inset-right));
   display: grid;
   width: 62px;
   height: 62px;
@@ -13,6 +11,8 @@
   background: transparent;
   box-shadow: none;
   cursor: pointer;
+  touch-action: none;
+  user-select: none;
   transition: transform .18s ease;
 }
 
@@ -38,14 +38,6 @@
   outline: 3px solid #0b397f;
   outline-offset: 2px;
   border-radius: 50%;
-}
-
-@media (max-width: 390px) {
-  .floating-wheel-action {
-    right: max(11px, env(safe-area-inset-right));
-    width: 56px;
-    height: 56px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

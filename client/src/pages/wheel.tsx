@@ -117,8 +117,8 @@ export default function WheelPage() {
   const config = configQuery.data ?? getPublicWheelConfiguration(DEFAULT_WHEEL_CONFIGURATION);
   const wheelSlices = config.prizes.map(toWheelSlice);
   const tickerValues = config.prizes.map(displayWheelPrize);
-  const tickerFirstRow = [...tickerValues, ...tickerValues];
-  const tickerSecondRow = [...tickerValues].reverse().concat([...tickerValues].reverse());
+  const tickerFirstRow = tickerValues;
+  const tickerSecondRow = [...tickerValues].reverse();
   const spinCount = spinsQuery.isPending || spinsQuery.isError
     ? "—"
     : spinsQuery.data?.availableSpins ?? "—";
