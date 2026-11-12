@@ -990,6 +990,22 @@ export async function registerRoutes(
       const records = await storage.getWheelRewardHistory(req.session.userId!);
       res.json(records);
     } catch (error: any) {
+      let cause: unknown = error;
+      const visited = new Set<unknown>();
+      while (cause && typeof cause === "object" && !visited.has(cause)) {
+        visited.add(cause);
+        const databaseError = cause as { code?: unknown; message?: unknown; cause?: unknown };
+        if (
+          databaseError.code === "42P01"
+          && typeof databaseError.message === "string"
+          && databaseError.message.includes("wheel_reward_records")
+        ) {
+          console.warn("[wheel] Reward history table is not installed; returning the empty-history state.");
+          res.json([]);
+          return;
+        }
+        cause = databaseError.cause;
+      }
       res.status(500).json({ message: error.message || "Impossible de charger l’historique des récompenses." });
     }
   });
