@@ -1,5 +1,5 @@
 import { sql, relations } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, decimal, serial, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, decimal, serial, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -102,6 +102,21 @@ export const wheelSpinCredits = pgTable("wheel_spin_credits", {
 }, (table) => ({
   uniquePurchaseCredit: uniqueIndex("wheel_spin_credits_user_purchase_unique")
     .on(table.userId, table.sourceUserProductId),
+}));
+
+export const wheelRewardRecords = pgTable("wheel_reward_records", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  spinCreditId: integer("spin_credit_id").notNull().references(() => wheelSpinCredits.id),
+  prizeName: text("prize_name").notNull(),
+  prizeValue: text("prize_value").notNull(),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  uniqueSpinReward: uniqueIndex("wheel_reward_records_spin_credit_unique")
+    .on(table.spinCreditId),
+  userHistory: index("wheel_reward_records_user_created_idx")
+    .on(table.userId, table.createdAt),
 }));
 
 // Deposits

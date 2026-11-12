@@ -1,0 +1,154 @@
+.wheel-reward-history-page {
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background: #fff;
+  color: #111;
+  font-family: Arial, sans-serif;
+}
+
+.wheel-reward-history-header {
+  position: relative;
+  display: grid;
+  height: 48px;
+  place-items: center;
+  border-bottom: 1px solid #e2e5eb;
+  background: #fff;
+}
+
+.wheel-reward-history-header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.wheel-reward-history-back {
+  position: absolute;
+  top: 0;
+  left: 18px;
+  display: grid;
+  width: 44px;
+  height: 48px;
+  place-items: center;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #101010;
+  cursor: pointer;
+}
+
+.wheel-reward-history-back:focus-visible {
+  outline: 2px solid #174581;
+  outline-offset: -4px;
+}
+
+.wheel-reward-history-empty {
+  display: flex;
+  justify-content: center;
+  padding: clamp(128px, 17.5vh, 158px) 16px 32px;
+}
+
+.wheel-reward-history-empty img {
+  display: block;
+  width: min(60vw, 260px);
+  height: auto;
+  object-fit: contain;
+}
+
+.wheel-reward-history-list {
+  display: grid;
+  width: min(100%, 532px);
+  gap: 15px;
+  margin: 0 auto;
+  padding: 18px 16px 32px;
+}
+
+.wheel-reward-history-card {
+  display: grid;
+  min-height: 80px;
+  align-content: center;
+  gap: 12px;
+  border-radius: 8px;
+  padding: 13px 12px;
+  background: #f5f5f5;
+  color: #1f252d;
+}
+
+.wheel-reward-history-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.wheel-reward-history-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.wheel-reward-history-row time {
+  flex: 0 0 auto;
+  color: #262a30;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.wheel-reward-history-value-row strong {
+  color: #17395e;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.wheel-reward-history-value-row span {
+  color: #17395e;
+  font-size: 12px;
+  text-align: right;
+}
+
+.wheel-reward-history-state {
+  display: flex;
+  min-height: calc(100dvh - 48px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  color: #6c7380;
+  font-size: 14px;
+  text-align: center;
+}
+
+.wheel-reward-history-spinner {
+  width: 22px;
+  height: 22px;
+  animation: wheel-history-spin 1s linear infinite;
+  color: #0b397c;
+}
+
+.wheel-reward-history-error button {
+  border: 0;
+  padding: 4px 8px;
+  background: transparent;
+  color: #0b397c;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (max-width: 370px) {
+  .wheel-reward-history-header h1 { font-size: 17px; }
+  .wheel-reward-history-row { gap: 6px; font-size: 12px; }
+  .wheel-reward-history-row time { font-size: 10px; }
+  .wheel-reward-history-value-row strong,
+  .wheel-reward-history-value-row span { font-size: 12px; }
+}
+
+@keyframes wheel-history-spin {
+  to { transform: rotate(360deg); }
+}

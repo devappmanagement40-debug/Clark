@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ArrowLeft, Clock3, History } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { WheelHistoryPreview } from "./History";
 import "./_group.css";
 import "./wheel.css";
 
@@ -95,6 +96,8 @@ function WheelPage() {
   const navigate = (_path: string) => {};
   const [historyOpen, setHistoryOpen] = useState(false);
 
+  if (historyOpen) return <WheelHistoryPreview onBack={() => setHistoryOpen(false)} />;
+
   return (
     <main className="wheel-page">
       <div className="wheel-sky" aria-hidden="true" />
@@ -109,10 +112,8 @@ function WheelPage() {
 
       <button
         type="button"
-        className={`wheel-history-tab ${historyOpen ? "is-open" : ""}`}
-        aria-expanded={historyOpen}
-        aria-controls="wheel-history-panel"
-        onClick={() => setHistoryOpen((open) => !open)}
+        className="wheel-history-tab"
+        onClick={() => setHistoryOpen(true)}
       >
         <span>Historique</span>
       </button>
@@ -180,25 +181,6 @@ function WheelPage() {
           </div>
         </section>
 
-        <section
-          className={`wheel-history-panel ${historyOpen ? "is-open" : ""}`}
-          id="wheel-history-panel"
-          aria-label="Historique des tirages"
-          hidden={!historyOpen}
-        >
-          <div className="wheel-history-heading">
-            <span className="wheel-history-icon"><History size={18} aria-hidden="true" /></span>
-            <div>
-              <h2>Historique des tirages</h2>
-              <p>Vos participations apparaîtront ici.</p>
-            </div>
-          </div>
-          <div className="wheel-empty-history">
-            <span className="wheel-empty-mark" aria-hidden="true"><Clock3 size={21} /></span>
-            <strong>Aucun tirage pour le moment</strong>
-            <span>L’historique est actuellement vide.</span>
-          </div>
-        </section>
       </div>
     </main>
   );

@@ -371,54 +371,6 @@
 }
 
 .wheel-history-tab span { font-size: 13px; font-weight: 600; }
-.wheel-history-tab.is-open { background: #b96937; }
-
-.wheel-history-panel {
-  margin: 18px 0 0;
-  border: 1px solid rgb(255 255 255 / 75%);
-  border-radius: 15px;
-  padding: 16px;
-  background: rgb(255 255 255 / 93%);
-  box-shadow: 0 10px 26px rgb(93 67 35 / 12%);
-}
-
-.wheel-history-heading {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding-bottom: 13px;
-  border-bottom: 1px solid #eee5d5;
-}
-
-.wheel-history-icon,
-.wheel-empty-mark {
-  display: grid;
-  flex: none;
-  width: 38px;
-  height: 38px;
-  place-items: center;
-  border-radius: 12px;
-  background: #fff2d8;
-  color: #c27b36;
-}
-
-.wheel-history-heading h2 { margin: 0; font-size: 15px; font-weight: 800; }
-.wheel-history-heading p { margin: 3px 0 0; color: #8b7b6c; font-size: 12px; }
-
-.wheel-empty-history {
-  display: flex;
-  min-height: 125px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  color: #83776d;
-  text-align: center;
-  font-size: 12px;
-}
-
-.wheel-empty-history strong { color: #5c5148; font-size: 13px; }
-.wheel-empty-mark { width: 42px; height: 42px; border-radius: 50%; }
 
 @keyframes wheel-marquee {
   from { transform: translateX(0); }

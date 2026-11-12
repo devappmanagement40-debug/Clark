@@ -29,6 +29,7 @@ const ServicePage = lazy(() => import("@/pages/service"));
 const MessagesPage = lazy(() => import("@/pages/messages"));
 const WalletPage = lazy(() => import("@/pages/wallet"));
 const IncomePage = lazy(() => import("@/pages/income"));
+const WheelRewardHistoryPage = lazy(() => import("@/pages/wheel-history"));
 const SharePage = lazy(() => import("@/pages/share"));
 const ChangePasswordPage = lazy(() => import("@/pages/change-password"));
 const PersonalInformationPage = lazy(() => import("@/pages/personal-information"));
@@ -152,7 +153,7 @@ const legacyPrivateRoutes: Array<[string, string]> = [
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const isFullScreenWheel = location === "/my-page/wheel";
+  const isFullScreenWheel = location === "/my-page/wheel" || location === "/my-page/wheel/history";
   const usesWhiteAccountShell = [
     "/my-page/account",
     "/my-page/personal-information",
@@ -227,6 +228,13 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <WheelPage />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/my-page/wheel/history">
+        <ProtectedRoute>
+          <AppLayout>
+            <WheelRewardHistoryPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>

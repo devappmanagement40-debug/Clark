@@ -2,7 +2,7 @@ import {
   users, products, userProducts, deposits, withdrawals, withdrawalWallets,
   withdrawalFeePayments,
   paymentChannels, paymentNumbers, stakingProducts, userStakings, referralCommissions, tasks, userTasks, transactions, platformSettings, adminAuditLog,
-  giftCodes, giftCodeClaims, countries, clapayPayouts, wheelSpinCredits,
+  giftCodes, giftCodeClaims, countries, clapayPayouts, wheelSpinCredits, wheelRewardRecords,
   type User, type Product, type UserProduct, type Deposit, type Withdrawal, type WithdrawalWallet,
   type PaymentChannel, type PaymentNumber, type StakingProduct, type UserStaking, type ReferralCommission, type Task, type InsertTask, type UserTask, type Transaction, type PlatformSetting,
   type GiftCode, type GiftCodeClaim, type Country,
@@ -94,6 +94,13 @@ export interface IStorage {
   getAllUserProducts(userId: number): Promise<{ userProduct: UserProduct; product: Product }[]>;
   purchaseProduct(userId: number, productId: number, assignedByAdmin?: boolean): Promise<UserProduct>;
   getWheelSpinCount(userId: number): Promise<number>;
+  getWheelRewardHistory(userId: number): Promise<Array<{
+    id: number;
+    prizeName: string;
+    prizeValue: string;
+    status: string;
+    createdAt: Date;
+  }>>;
   removeUserProduct(userId: number, productId: number): Promise<void>;
   updateUserProduct(id: number, data: Partial<UserProduct>): Promise<UserProduct>;
   processEarnings(): Promise<void>;
@@ -799,6 +806,20 @@ export class DatabaseStorage implements IStorage {
       count: sql<number>`count(*)`,
     }).from(wheelSpinCredits).where(eq(wheelSpinCredits.userId, userId));
     return Number(result?.count ?? 0);
+  }
+
+  async getWheelRewardHistory(userId: number) {
+    return db.select({
+      id: wheelRewardRecords.id,
+      prizeName: wheelRewardRecords.prizeName,
+      prizeValue: wheelRewardRecords.prizeValue,
+      status: wheelRewardRecords.status,
+      createdAt: wheelRewardRecords.createdAt,
+    })
+      .from(wheelRewardRecords)
+      .where(eq(wheelRewardRecords.userId, userId))
+      .orderBy(desc(wheelRewardRecords.createdAt), desc(wheelRewardRecords.id))
+      .limit(100);
   }
 
   async updateUserProduct(id: number, data: Partial<UserProduct>): Promise<UserProduct> {

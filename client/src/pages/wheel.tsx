@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Clock3, History } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import duluxLogo from "@/assets/images/dulux-logo.png";
 import smartphonePrize from "@assets/IMG_e04157ef-94a9-445a-8792-414623a6bfb9_1794454091584.jpg";
 import motorcyclePrize from "@assets/IMG_7d4c63cb-5367-466d-8a89-c7c9165ed3d6_1794454091648.jpg";
@@ -94,7 +93,6 @@ function WheelIllustration() {
 
 export default function WheelPage() {
   const [, navigate] = useLocation();
-  const [historyOpen, setHistoryOpen] = useState(false);
   const spinsQuery = useQuery<{ availableSpins: number }>({
     queryKey: ["/api/wheel/spins"],
     refetchInterval: 15_000,
@@ -117,10 +115,8 @@ export default function WheelPage() {
 
       <button
         type="button"
-        className={`wheel-history-tab ${historyOpen ? "is-open" : ""}`}
-        aria-expanded={historyOpen}
-        aria-controls="wheel-history-panel"
-        onClick={() => setHistoryOpen((open) => !open)}
+        className="wheel-history-tab"
+        onClick={() => navigate("/my-page/wheel/history")}
       >
         <span>Historique</span>
       </button>
@@ -188,25 +184,6 @@ export default function WheelPage() {
           </div>
         </section>
 
-        <section
-          className={`wheel-history-panel ${historyOpen ? "is-open" : ""}`}
-          id="wheel-history-panel"
-          aria-label="Historique des tirages"
-          hidden={!historyOpen}
-        >
-          <div className="wheel-history-heading">
-            <span className="wheel-history-icon"><History size={18} aria-hidden="true" /></span>
-            <div>
-              <h2>Historique des tirages</h2>
-              <p>Vos participations apparaîtront ici.</p>
-            </div>
-          </div>
-          <div className="wheel-empty-history">
-            <span className="wheel-empty-mark" aria-hidden="true"><Clock3 size={21} /></span>
-            <strong>Aucun tirage pour le moment</strong>
-            <span>L’historique est actuellement vide.</span>
-          </div>
-        </section>
       </div>
     </main>
   );

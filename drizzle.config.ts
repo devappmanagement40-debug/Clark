@@ -34,6 +34,7 @@ export default defineConfig({
     "withdrawals",
     "withdrawal_wallets",
     "wheel_spin_credits",
+    "wheel_reward_records",
   ],
   dbCredentials: {
     url: databaseUrl,

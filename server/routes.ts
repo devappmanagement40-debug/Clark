@@ -985,6 +985,15 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/wheel/rewards/history", requireAuth, async (req, res) => {
+    try {
+      const records = await storage.getWheelRewardHistory(req.session.userId!);
+      res.json(records);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Impossible de charger l’historique des récompenses." });
+    }
+  });
+
   app.get("/api/products", requireAuth, async (req, res) => {
     try {
       const products = await storage.getProducts(true);
