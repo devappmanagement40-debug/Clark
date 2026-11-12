@@ -134,7 +134,6 @@ function WheelPage() {
         aria-controls="wheel-history-panel"
         onClick={() => setHistoryOpen((open) => !open)}
       >
-        <History size={16} aria-hidden="true" />
         <span>Historique</span>
       </button>
 
