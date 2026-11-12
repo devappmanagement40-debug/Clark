@@ -76,6 +76,7 @@
 .wheel-keep-going {
   margin: 0;
   font-size: clamp(26px, 7vw, 39px);
+  font-family: Arial, Helvetica, sans-serif;
   font-style: italic;
   font-weight: 900;
   line-height: 1.04;
@@ -87,15 +88,19 @@
   text-shadow: 1px 2px 0 #fff0be, 2px 4px 0 rgb(109 52 32 / 25%);
 }
 
+.wheel-heading-emphasis {
+  color: #542825;
+}
+
 .wheel-good-luck {
   margin-top: 3px;
-  color: #793b2d;
+  color: #542825;
   font-size: clamp(24px, 6.3vw, 34px);
 }
 
 .wheel-keep-going {
   margin-top: 4px;
-  color: #e65d2d;
+  color: #e65324;
   font-size: clamp(23px, 6vw, 33px);
   text-align: right;
 }

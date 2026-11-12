@@ -141,7 +141,7 @@ function WheelPage() {
 
       <div className="wheel-content">
         <header className="wheel-heading">
-          <h1>Grand Tirage Chanceux</h1>
+          <h1><span>Grand Tirage</span> <span className="wheel-heading-emphasis">Chanceux</span></h1>
           <p className="wheel-good-luck">Bonne Chance</p>
           <p className="wheel-keep-going">Continuez à rouler !</p>
         </header>
