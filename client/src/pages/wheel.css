@@ -481,3 +481,81 @@
   .wheel-ticker-track { animation: none; }
   .wheel-back, .wheel-history-tab, .wheel-draw-button { transition: none; }
 }
+
+.wheel-win-overlay {
+  background: rgb(0 0 0 / 62%);
+  backdrop-filter: blur(1px);
+}
+
+.wheel-win-dialog {
+  display: block;
+  width: min(calc(100vw - 44px), 420px);
+  max-width: 420px;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: #fff;
+  color: #171717;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 22%);
+}
+
+.wheel-win-dialog > button[aria-label="Close"] {
+  display: none;
+}
+
+.wheel-win-copy {
+  display: flex;
+  min-height: 188px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 24px 22px;
+  text-align: center;
+}
+
+.wheel-win-title {
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.wheel-win-prize {
+  margin: 18px 0 2px;
+  color: #183e77;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.wheel-win-description {
+  max-width: 330px;
+  margin-top: 2px;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.wheel-win-confirm {
+  display: block;
+  width: 100%;
+  min-height: 56px;
+  border: 0;
+  border-top: 1px solid #dedede;
+  background: #f2f2f2;
+  color: #2582c9;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.wheel-win-confirm:focus-visible {
+  outline: 3px solid #2582c9;
+  outline-offset: -4px;
+}
+
+@media (max-width: 390px) {
+  .wheel-win-dialog { width: calc(100vw - 36px); }
+  .wheel-win-copy { padding-right: 18px; padding-left: 18px; }
+  .wheel-win-title { font-size: 18px; }
+}

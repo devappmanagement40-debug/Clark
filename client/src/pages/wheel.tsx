@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import duluxLogo from "@/assets/images/dulux-logo.png";
 import {
   displayWheelPrize,
@@ -176,12 +177,6 @@ export default function WheelPage() {
       animationTimer.current = setTimeout(() => {
         setIsAnimating(false);
         setDrawResult(result);
-        toast({
-          title: result.status === "credited" ? "Gain crédité" : "Lot gagné",
-          description: result.status === "credited"
-            ? `${result.prizeValue} a été ajouté à votre solde des revenus.`
-            : `${result.prizeValue} — remise à confirmer par l’administration.`,
-        });
       }, 5_250);
     },
     onError: (error: Error) => {
@@ -220,6 +215,7 @@ export default function WheelPage() {
     : spinsQuery.data?.availableSpins ?? "—";
   const availableSpins = spinsQuery.data?.availableSpins ?? 0;
   const drawBusy = drawMutation.isPending || isAnimating;
+  const wonPrize = drawResult?.publicConfiguration.prizes.find((prize) => prize.id === drawResult.prizeId);
 
   return (
     <main className="wheel-page">
@@ -309,6 +305,36 @@ export default function WheelPage() {
         )}
 
       </div>
+      <Dialog
+        open={Boolean(drawResult) && !isAnimating}
+        onOpenChange={(open) => {
+          if (!open) setDrawResult(null);
+        }}
+      >
+        <DialogContent
+          className="wheel-win-dialog"
+          overlayClassName="wheel-win-overlay"
+          aria-describedby="wheel-win-description"
+        >
+          <div className="wheel-win-copy">
+            <DialogTitle className="wheel-win-title">Félicitations, vous avez gagné !</DialogTitle>
+            <p className="wheel-win-prize">{drawResult?.prizeValue}</p>
+            <DialogDescription id="wheel-win-description" className="wheel-win-description">
+              {drawResult?.status === "credited"
+                ? `${wonPrize?.title ?? "Votre gain"} a été crédité à votre solde des revenus.`
+                : `${wonPrize?.title ?? "Votre lot"} est en attente de confirmation pour sa remise.`}
+            </DialogDescription>
+          </div>
+          <button
+            type="button"
+            className="wheel-win-confirm"
+            onClick={() => setDrawResult(null)}
+            autoFocus
+          >
+            OK
+          </button>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
