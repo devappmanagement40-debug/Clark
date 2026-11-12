@@ -101,6 +101,7 @@
 }
 
 .wheel-ticker-stack {
+  position: relative;
   display: grid;
   gap: 7px;
   width: calc(100% + 36px);
