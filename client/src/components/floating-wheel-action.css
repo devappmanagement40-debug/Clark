@@ -1,51 +1,54 @@
 .floating-wheel-action {
   position: fixed;
   z-index: 40;
-  bottom: calc(91px + env(safe-area-inset-bottom));
-  left: max(14px, env(safe-area-inset-left));
+  top: max(12px, calc(72vh - 74px));
+  right: max(16px, env(safe-area-inset-right));
   display: grid;
-  width: 58px;
-  height: 58px;
+  width: 62px;
+  height: 62px;
   place-items: center;
-  border: 2px solid #fff0b6;
-  border-radius: 50%;
+  border: 0;
+  border-radius: 0;
   padding: 0;
-  background: linear-gradient(145deg, #f9c55a, #e86d3c);
-  color: #fff9e5;
-  box-shadow: 0 4px 12px rgb(74 43 22 / 30%), inset 0 1px 2px rgb(255 255 255 / 75%);
+  background: transparent;
+  box-shadow: none;
   cursor: pointer;
-  transition: transform .18s ease, box-shadow .18s ease;
+  transition: transform .18s ease;
 }
 
 .floating-wheel-action:hover {
-  transform: translateY(-3px) scale(1.04);
-  box-shadow: 0 7px 16px rgb(74 43 22 / 33%), inset 0 1px 2px rgb(255 255 255 / 75%);
+  transform: scale(1.08);
+}
+
+.floating-wheel-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 5px rgb(0 0 0 / 34%));
+  animation: floating-wheel-spin 7s linear infinite;
+  will-change: transform;
+}
+
+@keyframes floating-wheel-spin {
+  to { transform: rotate(360deg); }
 }
 
 .floating-wheel-action:focus-visible {
-  outline: 3px solid #fff;
-  outline-offset: 3px;
-}
-
-.floating-wheel-ring {
-  display: grid;
-  width: 44px;
-  height: 44px;
-  place-items: center;
-  border: 1px solid rgb(255 255 255 / 72%);
+  outline: 3px solid #0b397f;
+  outline-offset: 2px;
   border-radius: 50%;
 }
 
 @media (max-width: 390px) {
   .floating-wheel-action {
-    bottom: calc(88px + env(safe-area-inset-bottom));
-    left: max(11px, env(safe-area-inset-left));
-    width: 52px;
-    height: 52px;
+    right: max(11px, env(safe-area-inset-right));
+    width: 56px;
+    height: 56px;
   }
-  .floating-wheel-ring { width: 39px; height: 39px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .floating-wheel-action { transition: none; }
+  .floating-wheel-action,
+  .floating-wheel-icon { transition: none; animation: none; }
 }

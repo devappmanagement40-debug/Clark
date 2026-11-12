@@ -1,5 +1,4 @@
 import { useLocation } from "wouter";
-import { Disc3 } from "lucide-react";
 import "./floating-wheel-action.css";
 
 export default function FloatingWheelAction() {
@@ -13,9 +12,13 @@ export default function FloatingWheelAction() {
       data-testid="floating-wheel-action"
       onClick={() => navigate("/my-page/wheel")}
     >
-      <span className="floating-wheel-ring" aria-hidden="true">
-        <Disc3 size={27} strokeWidth={1.8} />
-      </span>
+      <img
+        className="floating-wheel-icon"
+        src="/wheel-button-3d.png"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+      />
     </button>
   );
 }
