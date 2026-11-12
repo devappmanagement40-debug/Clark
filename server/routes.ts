@@ -675,16 +675,7 @@ async function requireBanker(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-export async function registerRoutes(
-  httpServer: Server,
-  app: Express
-): Promise<Server> {
-  
-  // Trust proxy for production HTTPS (Replit deployment)
-  app.set("trust proxy", 1);
-
-  // Additive inbox schema setup: safe for existing Supabase databases and
-  // independent of whether startup demo seeding is enabled.
+export async function ensureInboxSchema(): Promise<void> {
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS "message_campaigns" (
       "id" serial PRIMARY KEY,
@@ -708,6 +699,15 @@ export async function registerRoutes(
     CREATE INDEX IF NOT EXISTS "inbox_messages_user_created_idx"
       ON "inbox_messages" ("user_id", "created_at" DESC)
   `);
+}
+
+export async function registerRoutes(
+  httpServer: Server,
+  app: Express
+): Promise<Server> {
+  
+  // Trust proxy for production HTTPS (Replit deployment)
+  app.set("trust proxy", 1);
 
   app.use(
     session({

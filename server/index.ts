@@ -1,5 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
+import { ensureInboxSchema, registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { seed } from "./seed";
@@ -243,6 +243,14 @@ app.use((req, res, next) => {
         log("Database initialization skipped by configuration", "startup");
       } else {
         await seed();
+      }
+      try {
+        await ensureInboxSchema();
+      } catch (error) {
+        console.error(
+          "[startup] Inbox schema setup failed; keeping the application online:",
+          error,
+        );
       }
       startupState = "ready";
       finishStartupWait();
