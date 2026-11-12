@@ -146,29 +146,33 @@ function WheelPage() {
           <p className="wheel-keep-going">Continuez à rouler !</p>
         </header>
 
-        <div className="wheel-ticker-stack" aria-label="Exemples de gagnants et de lots">
+        <div className="wheel-ticker-stack" aria-label="Lots et montants de la roue">
           <div className="wheel-ticker">
             <div className="wheel-ticker-track">
-              <span>Exemple · 07XXX85 a reçu 2 777 XOF</span>
-              <span>Exemple · 6***4268 a reçu 777 XOF</span>
-              <span>Exemple · 9***9842 a reçu 7 777 XOF</span>
-              <span>Exemple · 2***1846 a reçu 27 777 XOF</span>
-              <span>Exemple · 07XXX85 a reçu 2 777 XOF</span>
-              <span>Exemple · 6***4268 a reçu 777 XOF</span>
-              <span>Exemple · 9***9842 a reçu 7 777 XOF</span>
-              <span>Exemple · 2***1846 a reçu 27 777 XOF</span>
+              <span>777 XOF</span>
+              <span>2 777 XOF</span>
+              <span>7 777 XOF</span>
+              <span>27 777 XOF</span>
+              <span>17 777 XOF</span>
+              <span>37 777 XOF</span>
+              <span>97 777 XOF</span>
+              <span>777 XOF</span>
+              <span>2 777 XOF</span>
+              <span>7 777 XOF</span>
+              <span>27 777 XOF</span>
+              <span>17 777 XOF</span>
+              <span>37 777 XOF</span>
+              <span>97 777 XOF</span>
             </div>
           </div>
           <div className="wheel-ticker wheel-ticker-reverse">
             <div className="wheel-ticker-track">
-              <span>Exemple · 7***2835 a reçu un téléphone</span>
-              <span>Exemple · 5***4289 a reçu une power bank</span>
-              <span>Exemple · 3***3361 a reçu un smartphone</span>
-              <span>Exemple · 4***1026 a reçu un lot surprise</span>
-              <span>Exemple · 7***2835 a reçu un téléphone</span>
-              <span>Exemple · 5***4289 a reçu une power bank</span>
-              <span>Exemple · 3***3361 a reçu un smartphone</span>
-              <span>Exemple · 4***1026 a reçu un lot surprise</span>
+              <span>Téléphone</span>
+              <span>Power bank</span>
+              <span>Carte cadeau</span>
+              <span>Téléphone</span>
+              <span>Power bank</span>
+              <span>Carte cadeau</span>
             </div>
           </div>
         </div>
