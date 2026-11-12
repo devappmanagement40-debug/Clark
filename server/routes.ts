@@ -990,6 +990,15 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/wheel/recent-winners", requireAuth, async (_req, res) => {
+    try {
+      res.json(await storage.getRecentWheelWinners());
+    } catch (error: any) {
+      console.error("[wheel] Recent winners unavailable:", error);
+      res.status(500).json({ message: "Impossible de charger les derniers gains." });
+    }
+  });
+
   app.post("/api/wheel/draw", requireAuth, async (req, res) => {
     try {
       const result = await storage.drawWheel(req.session.userId!);

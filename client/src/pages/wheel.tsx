@@ -148,6 +148,10 @@ export default function WheelPage() {
     queryKey: ["/api/wheel/spins"],
     refetchInterval: 15_000,
   });
+  const winnersQuery = useQuery<Array<{ prizeValue: string }>>({
+    queryKey: ["/api/wheel/recent-winners"],
+    refetchInterval: 30_000,
+  });
   const drawMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("POST", "/api/wheel/draw", {});
@@ -200,9 +204,17 @@ export default function WheelPage() {
     prizes: [],
   };
   const wheelSlices = config.prizes.map(toWheelSlice);
-  const tickerValues = config.prizes.map(displayWheelPrize);
-  const tickerFirstRow = tickerValues;
-  const tickerSecondRow = [...tickerValues].reverse();
+  const winnerMessages = winnersQuery.data?.map((winner) => `Un membre a remporté ${winner.prizeValue}`) ?? [];
+  const tickerBaseMessages = winnerMessages.length
+    ? winnerMessages
+    : config.prizes.map((prize) => `À gagner : ${displayWheelPrize(prize)}`);
+  const tickerRepeatCount = tickerBaseMessages.length
+    ? Math.max(1, Math.ceil(10 / tickerBaseMessages.length))
+    : 0;
+  const tickerMessages = Array.from({ length: tickerRepeatCount }, () => tickerBaseMessages).flat();
+  const tickerFirstRow = [...tickerMessages, ...tickerMessages];
+  const reversedTickerMessages = [...tickerMessages].reverse();
+  const tickerSecondRow = [...reversedTickerMessages, ...reversedTickerMessages];
   const spinCount = spinsQuery.isPending || spinsQuery.isError
     ? "—"
     : spinsQuery.data?.availableSpins ?? "—";
@@ -236,7 +248,10 @@ export default function WheelPage() {
           <p className="wheel-keep-going">Continuez à rouler !</p>
         </header>
 
-        <div className="wheel-ticker-stack" aria-label="Lots présentés sur la roue">
+        <div
+          className="wheel-ticker-stack"
+          aria-label={winnerMessages.length ? "Derniers lots réellement gagnés" : "Lots à gagner"}
+        >
           <div className="wheel-ticker">
             <div className="wheel-ticker-track">
               {tickerFirstRow.map((value, index) => <span key={`top-${index}-${value}`}>{value}</span>)}

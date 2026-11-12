@@ -133,7 +133,17 @@
   height: 100%;
   align-items: center;
   gap: 10px;
-  animation: none;
+  animation: wheel-ticker-scroll 28s linear infinite;
+  will-change: transform;
+}
+
+.wheel-ticker-reverse .wheel-ticker-track {
+  animation-direction: reverse;
+  animation-duration: 34s;
+}
+
+.wheel-ticker-stack:hover .wheel-ticker-track {
+  animation-play-state: paused;
 }
 
 .wheel-ticker-track span {
@@ -142,6 +152,10 @@
   background: rgb(59 110 117 / 42%);
   text-shadow: 0 1px 2px rgb(20 50 55 / 25%);
   white-space: nowrap;
+}
+
+@keyframes wheel-ticker-scroll {
+  to { transform: translateX(-50%); }
 }
 
 .wheel-stage {

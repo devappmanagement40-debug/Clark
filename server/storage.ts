@@ -121,6 +121,10 @@ export interface IStorage {
     status: string;
     createdAt: Date;
   }>>;
+  getRecentWheelWinners(): Promise<Array<{
+    prizeValue: string;
+    createdAt: Date;
+  }>>;
   getPendingWheelRewards(): Promise<Array<{
     id: number;
     userId: number;
@@ -966,6 +970,17 @@ export class DatabaseStorage implements IStorage {
       .where(eq(wheelRewardRecords.userId, userId))
       .orderBy(desc(wheelRewardRecords.createdAt), desc(wheelRewardRecords.id))
       .limit(100);
+  }
+
+  async getRecentWheelWinners() {
+    return db.select({
+      prizeValue: wheelRewardRecords.prizeValue,
+      createdAt: wheelRewardRecords.createdAt,
+    })
+      .from(wheelRewardRecords)
+      .where(inArray(wheelRewardRecords.status, ["credited", "pending", "delivered"]))
+      .orderBy(desc(wheelRewardRecords.createdAt), desc(wheelRewardRecords.id))
+      .limit(30);
   }
 
   async getPendingWheelRewards() {
