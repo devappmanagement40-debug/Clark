@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { PaintRoller, ChartNoAxesColumnIncreasing, UsersRound, Share2, ContactRound } from "lucide-react";
-import { ArrowLeft, Clock3, Gift, History } from "lucide-react";
+import { ArrowLeft, Clock3, History } from "lucide-react";
 import "./_group.css";
 import "./wheel.css";
 
@@ -125,7 +124,7 @@ function WheelPage() {
         aria-label="Retour à l’accueil"
         onClick={() => navigate("/my-page/home")}
       >
-        <ArrowLeft size={23} aria-hidden="true" />
+        <ArrowLeft size={24} aria-hidden="true" />
       </button>
 
       <button
@@ -180,8 +179,7 @@ function WheelPage() {
         <WheelIllustration />
 
         <div className="wheel-spins" aria-label="Nombre de tirages restants : 0">
-          <Clock3 size={14} aria-hidden="true" />
-          <span>Nombre de tirages restants : <strong>0</strong></span>
+          <span>Nombre de tirages restants: <strong>0</strong></span>
         </div>
         <button
           type="button"
@@ -189,16 +187,15 @@ function WheelPage() {
           disabled
         >
           <span>Lancer le tirage</span>
-          <span className="wheel-button-mark" aria-hidden="true"><Gift size={18} /></span>
         </button>
         <section className="wheel-event" aria-labelledby="wheel-event-title">
           <h2 id="wheel-event-title">PRÉSENTATION DE L'ÉVÉNEMENT</h2>
           <div className="wheel-event-card">
-            <span className="wheel-event-kicker">À PROPOS</span>
+            <span className="wheel-event-kicker" aria-hidden="true">📣📣📣 :</span>
             <p>
-              Chaque participant pourra découvrir les récompenses et les modalités du tirage ici. Les montants
-              visibles sur la maquette, de 777 à 977 777 XOF, sont des exemples à configurer avant l’ouverture.
-              Bonne chance !
+              Cette section présente les lots, les montants possibles et les règles du tirage. Les conditions de
+              participation, les probabilités associées à chaque récompense et les modalités de remise seront
+              précisées avant l’ouverture. Consultez toutes les informations avant de lancer le tirage. Bonne chance !
             </p>
           </div>
         </section>
@@ -229,20 +226,5 @@ function WheelPage() {
 
 
 export default function WheelPreview() {
-  const items = [
-    ["Accueil", PaintRoller], ["Revenus", ChartNoAxesColumnIncreasing], ["Équipe", UsersRound], ["Partager", Share2], ["Moi", ContactRound],
-  ] as const;
-  return (
-    <>
-      <WheelPage />
-      <nav className="wheel-preview-nav" aria-label="Navigation principale">
-        {items.map(([label, Icon]) => (
-          <div className="wheel-preview-nav-item" key={label}>
-            <Icon size={21} strokeWidth={1.8} aria-hidden="true" />
-            <span>{label}</span>
-          </div>
-        ))}
-      </nav>
-    </>
-  );
+  return <WheelPage />;
 }

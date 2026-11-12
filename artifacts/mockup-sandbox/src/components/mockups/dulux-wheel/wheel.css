@@ -4,7 +4,7 @@
   min-height: 100dvh;
   overflow: hidden;
   isolation: isolate;
-  padding: max(48px, env(safe-area-inset-top)) 18px calc(82px + env(safe-area-inset-bottom));
+  padding: max(53px, env(safe-area-inset-top)) 18px calc(16px + env(safe-area-inset-bottom));
   color: var(--wheel-ink);
   background: linear-gradient(180deg, #76eff1 0%, #99f1ed 24%, #fff 47%, #fff7d8 68%, #ffe8ac 100%);
   font-family: Inter, "Avenir Next", sans-serif;
@@ -46,10 +46,9 @@
   place-items: center;
   border: 1px solid transparent;
   border-radius: 12px;
-  background: rgb(255 255 255 / 12%);
+  background: transparent;
   color: #fff;
   cursor: pointer;
-  backdrop-filter: blur(8px);
 }
 
 .wheel-back:focus-visible,
@@ -93,15 +92,18 @@
 }
 
 .wheel-good-luck {
+  padding-left: clamp(24px, 7.4vw, 34px);
   margin-top: 3px;
   color: #542825;
-  font-size: clamp(24px, 6.3vw, 34px);
+  font-size: clamp(26px, 6.9vw, 36px);
+  text-align: left;
 }
 
 .wheel-keep-going {
   margin-top: 4px;
+  padding-right: 8px;
   color: #e65324;
-  font-size: clamp(23px, 6vw, 33px);
+  font-size: clamp(26px, 7.2vw, 37px);
   text-align: right;
 }
 
@@ -146,9 +148,9 @@
 
 .wheel-stage {
   position: relative;
-  width: min(86vw, 390px);
+  width: min(80vw, 390px);
   aspect-ratio: 1;
-  margin: 24px auto 27px;
+  margin: clamp(28px, 7.4vw, 34px) auto 36px;
   filter: drop-shadow(0 13px 12px rgb(121 73 31 / 17%));
 }
 
@@ -247,10 +249,10 @@
 .wheel-pedestal {
   position: absolute;
   z-index: -1;
-  right: 31%;
-  bottom: -18%;
-  left: 31%;
-  height: 26%;
+  right: 29%;
+  bottom: -10%;
+  left: 29%;
+  height: 18%;
   clip-path: polygon(28% 0, 72% 0, 100% 100%, 0 100%);
   border: 3px solid #d1882d;
   background: linear-gradient(90deg, #d98628, #ffbd4f 44%, #e98a2d);
@@ -258,18 +260,17 @@
 
 .wheel-spins {
   display: flex;
-  width: min(76%, 310px);
-  min-height: 31px;
+  width: min(70%, 310px);
+  min-height: 22px;
   align-items: center;
   justify-content: center;
-  gap: 7px;
   margin: 0 auto;
   border: 1px solid #d98831;
   border-radius: 999px;
   background: linear-gradient(180deg, #ffd36d, #e78b32);
   color: white;
   box-shadow: inset 0 2px 3px rgb(255 255 255 / 72%), 0 2px 0 rgb(160 88 24 / 30%);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   text-shadow: 0 1px 2px rgb(112 61 22 / 35%);
 }
@@ -279,17 +280,17 @@
 .wheel-draw-button {
   position: relative;
   display: flex;
-  width: min(68%, 285px);
-  min-height: 58px;
+  width: min(60%, 270px);
+  min-height: 64px;
   align-items: center;
   justify-content: center;
   margin: 27px auto 0;
-  border: 2px solid #f6c969;
+  border: 2px solid #f8d783;
   border-radius: 999px;
-  background: linear-gradient(180deg, #ffbd62, #f57c3c);
+  background: linear-gradient(180deg, #ffd17b 0%, #ffab5d 48%, #f67d3d 100%);
   color: #fff;
-  box-shadow: inset 0 2px 0 rgb(255 255 255 / 85%), 0 3px 0 #d87938, 0 0 0 4px rgb(255 194 98 / 28%);
-  font-size: 19px;
+  box-shadow: inset 0 2px 0 rgb(255 255 255 / 88%), 0 3px 0 #d87938, 0 0 0 4px rgb(255 194 98 / 32%), 0 5px 10px rgb(147 80 34 / 18%);
+  font-size: 20px;
   font-weight: 800;
   text-shadow: 0 1px 2px rgb(143 71 28 / 34%);
 }
@@ -300,20 +301,8 @@
   filter: saturate(.96);
 }
 
-.wheel-button-mark {
-  position: absolute;
-  right: 13px;
-  display: grid;
-  width: 30px;
-  height: 30px;
-  place-items: center;
-  border: 1px solid rgb(255 255 255 / 46%);
-  border-radius: 50%;
-  background: rgb(255 255 255 / 19%);
-}
-
 .wheel-event {
-  margin: 30px -2px 0;
+  margin: 39px 0 0;
 }
 
 .wheel-event h2 {
@@ -327,33 +316,31 @@
 }
 
 .wheel-event-card {
-  min-height: 190px;
-  border: 1px solid rgb(255 255 255 / 76%);
+  min-height: 224px;
   border-radius: 14px;
-  padding: 22px 20px 18px;
-  background: rgb(255 255 255 / 91%);
-  box-shadow: 0 8px 22px rgb(144 100 48 / 8%);
+  padding: 22px 30px 18px;
+  background: #fff;
 }
 
 .wheel-event-kicker {
-  color: #dd7543;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: .17em;
+  display: block;
+  color: #eb5e39;
+  font-size: 17px;
+  line-height: 1.2;
 }
 
 .wheel-event-card p {
-  margin: 8px 0 12px;
+  margin: 1px 0 12px;
   color: #28221f;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 17px;
-  line-height: 1.33;
+  line-height: 1.2;
 }
 
 .wheel-history-tab {
   position: fixed;
   z-index: 48;
-  top: 28%;
+  top: 20%;
   right: 0;
   display: flex;
   min-height: 92px;
@@ -437,7 +424,7 @@
   .wheel-page { padding-right: 14px; padding-left: 14px; }
   .wheel-ticker-stack { width: calc(100% + 28px); margin-right: -14px; margin-left: -14px; }
   .wheel-ticker { width: 100%; margin-right: 0; margin-left: 0; }
-  .wheel-stage { width: min(84vw, 330px); margin-top: 18px; margin-bottom: 22px; }
+  .wheel-stage { width: min(80vw, 330px); margin-top: clamp(28px, 7.4vw, 34px); margin-bottom: 36px; }
   .wheel-event-card { padding: 19px 16px 16px; }
   .wheel-event-card p { font-size: 16px; }
 }

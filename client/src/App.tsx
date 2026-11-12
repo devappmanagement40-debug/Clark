@@ -152,6 +152,7 @@ const legacyPrivateRoutes: Array<[string, string]> = [
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
+  const isFullScreenWheel = location === "/my-page/wheel";
   const usesWhiteAccountShell = [
     "/my-page/account",
     "/my-page/personal-information",
@@ -163,9 +164,9 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   ].includes(location);
 
   return (
-    <div className={`min-h-screen ${usesWhiteAccountShell ? "bg-white pb-0" : "bg-background pb-16"}`}>
+    <div className={`min-h-screen ${usesWhiteAccountShell || isFullScreenWheel ? "bg-white pb-0" : "bg-background pb-16"}`}>
       {children}
-      <BottomNav />
+      {!isFullScreenWheel && <BottomNav />}
     </div>
   );
 }
