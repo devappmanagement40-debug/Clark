@@ -16,7 +16,7 @@
   flex-direction: column;
   overflow: hidden;
   isolation: isolate;
-  padding: 0 0 calc(62px + env(safe-area-inset-bottom));
+  padding: 0;
   background: #f1f2f6 !important;
   color: var(--cp-ink);
   font-family: "DM Sans", sans-serif;
@@ -348,7 +348,8 @@ body:has(.cp-home) { background: #f1f2f6 !important; }
   align-content: start;
   grid-auto-rows: max-content;
   gap: 12px;
-  margin: 0 18px 14px;
+  margin: 0 18px;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom));
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
