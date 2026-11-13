@@ -23,8 +23,8 @@ export const modules: ModuleMap = {
   "./components/mockups/purchased-products/Current.tsx": () => import("../components/mockups/purchased-products/Current.tsx"),
   "./components/mockups/robotpay-manual-number/Centered.tsx": () => import("../components/mockups/robotpay-manual-number/Centered.tsx"),
   "./components/mockups/robotpay-manual-number/Current.tsx": () => import("../components/mockups/robotpay-manual-number/Current.tsx"),
-  "./components/mockups/task-center/Current.tsx": () => import("../components/mockups/task-center/Current.tsx"),
-  "./components/mockups/task-center/TaskCenterRedesign.tsx": () => import("../components/mockups/task-center/TaskCenterRedesign.tsx"),
   "./components/mockups/robotpay-operator-cards/Current.tsx": () => import("../components/mockups/robotpay-operator-cards/Current.tsx"),
-  "./components/mockups/robotpay-operator-cards/Refined.tsx": () => import("../components/mockups/robotpay-operator-cards/Refined.tsx")
+  "./components/mockups/robotpay-operator-cards/Refined.tsx": () => import("../components/mockups/robotpay-operator-cards/Refined.tsx"),
+  "./components/mockups/task-center/Current.tsx": () => import("../components/mockups/task-center/Current.tsx"),
+  "./components/mockups/task-center/TaskCenterRedesign.tsx": () => import("../components/mockups/task-center/TaskCenterRedesign.tsx")
 };
