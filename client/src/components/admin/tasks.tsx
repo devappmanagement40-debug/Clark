@@ -185,9 +185,13 @@ export default function AdminTasks() {
     <section className="space-y-4" data-testid="admin-task-management">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold">Paliers de récompense</h2>
+          <h2 className="text-lg font-bold">Missions partenaires</h2>
           <p className="text-sm text-muted-foreground">
-            {tasks?.length ?? 0} palier(s), dont {activeCount} actif(s)
+            {tasks?.length ?? 0} mission(s), dont {activeCount} active(s)
+          </p>
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+            Le nom, la description, le nombre de filleuls, la récompense, l’ordre et l’activation
+            sont enregistrés et affichés sur la page des membres.
           </p>
         </div>
         <Button onClick={openCreate} disabled={isLoading} data-testid="button-add-task">
@@ -281,7 +285,7 @@ export default function AdminTasks() {
       ) : (
         <Card>
           <CardContent className="p-6 text-center text-sm text-muted-foreground">
-            Aucun palier n’est configuré. Ajoutez-en un pour l’afficher dans le Centre des tâches.
+          Aucune mission n’est configurée. Ajoutez-en une pour l’afficher dans Mission partenaires.
           </CardContent>
         </Card>
       )}

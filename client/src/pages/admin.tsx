@@ -53,7 +53,7 @@ export default function AdminPage() {
               <TabsTrigger value="users" data-testid="tab-users">Utilisateurs</TabsTrigger>
               <TabsTrigger value="messages" data-testid="tab-messages">Messages</TabsTrigger>
               <TabsTrigger value="products" data-testid="tab-products">Produits</TabsTrigger>
-              <TabsTrigger value="tasks" data-testid="tab-tasks">Paliers</TabsTrigger>
+              <TabsTrigger value="tasks" data-testid="tab-tasks">Missions partenaires</TabsTrigger>
               <TabsTrigger value="payment-numbers" data-testid="tab-payment-numbers">Numéros</TabsTrigger>
               <TabsTrigger value="countries" data-testid="tab-countries">Pays</TabsTrigger>
               <TabsTrigger value="giftcodes" data-testid="tab-giftcodes">Codes Cadeaux</TabsTrigger>

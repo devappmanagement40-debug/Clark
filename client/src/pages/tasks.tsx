@@ -101,7 +101,6 @@ export default function TasksPage() {
         ) : taskList.length ? (
           taskList.map((task) => {
             const isClaimable = task.canClaim && !task.isCompleted;
-            const inviteLabel = task.requiredInvites === 1 ? "utilisateur valide" : "utilisateurs valides";
             const status = task.isCompleted
               ? "Récompense reçue"
               : isClaimable
@@ -115,10 +114,9 @@ export default function TasksPage() {
                 data-testid={`task-item-${task.id}`}
               >
                 <div className="partner-mission-copy">
-                  <h2>
-                    Inviter {task.requiredInvites} {inviteLabel}
-                  </h2>
-                  <p>Récompense de mission {formatAmount(task.reward)}</p>
+                  <h2>{task.name}</h2>
+                  <p className="partner-mission-description">{task.description}</p>
+                  <p className="partner-mission-reward">Récompense de mission {formatAmount(task.reward)}</p>
                 </div>
 
                 <div className="partner-mission-progress">
