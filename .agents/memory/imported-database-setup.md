@@ -3,7 +3,7 @@ name: Imported database setup
 description: Fresh imported projects may have only Replit's session table before the checked-in application schema is applied.
 ---
 
-For production data operations in this project, use only the external PostgreSQL configured for the app; never use Replit-managed PostgreSQL. Do not infer the provider from the environment variable name: the last live connection reported a `neondb_owner` role even though the configured key is named `SUPABASE_NEW_DATABASE_URL`.
+For production data operations in this project, use only the external PostgreSQL configured for the app; never use Replit-managed PostgreSQL. Verify the live endpoint before every write rather than inferring the provider from the variable name. The latest check reached the Supabase pooler as role `postgres`; an earlier connection used a Neon role, so the endpoint has changed over time.
 
 When setting up an imported app that uses Drizzle and connect-pg-simple, preserve the existing `session` table and treat application tables as new, even if Drizzle presents an ambiguous rename prompt. On Supabase, use a `tablesFilter` allowlist that excludes `session`; `drizzle-kit push --verbose` still applies changes, and push may disable RLS on an existing table.
 
