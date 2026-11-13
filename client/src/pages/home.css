@@ -658,6 +658,7 @@ body:has(.cp-home) { background: #f1f2f6 !important; }
   text-decoration: none;
   transition: transform .15s ease, filter .15s ease;
 }
+.cp-dialog-telegram { border-radius: 10px; }
 .cp-dialog-telegram:hover,
 .cp-dialog-close:hover { filter: brightness(.96); transform: translateY(-1px); }
 .cp-dialog-telegram:active,

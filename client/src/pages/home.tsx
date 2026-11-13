@@ -151,7 +151,9 @@ export default function HomePage() {
   const groupEnabled = settings?.groupEnabled !== "false";
   const supportLink = settings?.supportLink || "";
   const supportEnabled = settings?.supportEnabled !== "false";
-  const popupButtonLabel = settings?.popupButtonLabel || "Cliquez ici pour rejoindre le groupe Telegram";
+  const configuredPopupButtonLabel = settings?.popupButtonLabel?.trim() || "";
+  const popupButtonLabel =
+    configuredPopupButtonLabel.length > 12 ? "Groupe" : configuredPopupButtonLabel || "Groupe";
 
   return (
     <>

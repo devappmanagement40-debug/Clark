@@ -153,7 +153,7 @@ const settingsSchema = z.object({
   groupLink: z.string().min(5, "Lien requis"),
   groupType: z.string().min(1, "Réseau requis"),
   groupLabel: z.string().min(1, "Label requis"),
-  popupButtonLabel: z.string().min(1, "Label requis"),
+  popupButtonLabel: z.string().trim().min(1, "Label requis").max(12, "Le libellé doit rester court"),
   homeWithdrawalProcessingText: z.string().trim().min(1, "Texte requis").max(200),
   supportEnabled: z.boolean(),
   support2Enabled: z.boolean(),
@@ -268,7 +268,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       groupLink: "https://t.me/sybotx",
       groupType: "telegram",
       groupLabel: "Groupe de discussion",
-      popupButtonLabel: "Cliquez ici pour rejoindre le groupe Telegram",
+      popupButtonLabel: "Groupe",
       homeWithdrawalProcessingText: DEFAULT_HOME_WITHDRAWAL_PROCESSING_TEXT,
       withdrawalProcessingText: DEFAULT_WITHDRAWAL_PROCESSING_TEXT,
       supportEnabled: true,
@@ -320,7 +320,10 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         groupLink: settings.groupLink || "https://t.me/sybotx",
         groupType: settings.groupType || "telegram",
         groupLabel: settings.groupLabel || "Groupe de discussion",
-        popupButtonLabel: settings.popupButtonLabel || "Cliquez ici pour rejoindre le groupe Telegram",
+        popupButtonLabel:
+          settings.popupButtonLabel?.trim() && settings.popupButtonLabel.trim().length <= 12
+            ? settings.popupButtonLabel.trim()
+            : "Groupe",
         homeWithdrawalProcessingText: settings.homeWithdrawalProcessingText || DEFAULT_HOME_WITHDRAWAL_PROCESSING_TEXT,
         withdrawalProcessingText: settings.withdrawalProcessingText || DEFAULT_WITHDRAWAL_PROCESSING_TEXT,
         supportEnabled: settings.supportEnabled !== "false",
@@ -763,8 +766,8 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
               </p>
               <FormField control={form.control} name="popupButtonLabel" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Texte du bouton <span className="text-red-500">(popup dashboard)</span></FormLabel>
-                  <FormControl><Input {...field} placeholder="Ex: Cliquez ici pour rejoindre le groupe Telegram" /></FormControl>
+                  <FormLabel>Libellé court du bouton <span className="text-red-500">(popup dashboard)</span></FormLabel>
+                  <FormControl><Input {...field} maxLength={12} placeholder="Groupe" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
