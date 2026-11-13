@@ -62,9 +62,17 @@ type ClapayConfig = {
 };
 
 function requiredEnv(name: string): string {
-  const value = process.env[name]?.trim();
+  const value = envValue(name);
   if (!value) throw new Error(`Configuration Clapay manquante dans Plesk : ${name}`);
   return value;
+}
+
+function envValue(...names: string[]): string | undefined {
+  for (const name of names) {
+    const value = process.env[name]?.trim();
+    if (value) return value;
+  }
+  return undefined;
 }
 
 function parseJsonEnv(name: string): unknown {
@@ -125,7 +133,7 @@ function optionalJsonEnv(name: string, fallback: unknown): unknown {
 }
 
 function loadConfig(): ClapayConfig {
-  const baseUrlRaw = process.env.CLAPAY_API_BASE_URL?.trim()
+  const baseUrlRaw = envValue("CLAPAY_API_BASE_URL", "CLAPAY_BASE_URL")
     || "https://nw-api.clapay.app/nowallet/api/v3";
   let baseUrl: URL;
   try {
@@ -145,7 +153,7 @@ function loadConfig(): ClapayConfig {
 
   return {
     baseUrl,
-    apiKey: requiredEnv("CLAPAY_API_KEY"),
+    apiKey: requiredEnv("CLAPAY_API_KEY", "CLAPAY_API_TOKEN"),
     authHeader,
     authPrefix: process.env.CLAPAY_API_KEY_PREFIX === undefined
       ? "Bearer"
@@ -189,8 +197,8 @@ function loadConfig(): ClapayConfig {
       || "/nowallet/api/init/payment",
     payoutStatusPath: process.env.CLAPAY_PAYOUT_STATUS_PATH?.trim()
       || "/nowallet/api/check/status/payment",
-    webhookSecret: requiredEnv("CLAPAY_WEBHOOK_SECRET"),
-    webhookUniqueKey: requiredEnv("CLAPAY_WEBHOOK_UNIQUE_KEY"),
+    webhookSecret: requiredEnv("CLAPAY_WEBHOOK_SECRET", "CLAPAY_SECRET_KEY"),
+    webhookUniqueKey: requiredEnv("CLAPAY_WEBHOOK_UNIQUE_KEY", "CLAPAY_PUBLIC_KEY"),
   };
 }
 
@@ -881,8 +889,8 @@ export async function checkClapayPayout(signature: string): Promise<ClapayStatus
 }
 
 export function verifyClapayWebhookSignature(body: unknown, headerValue: string | undefined): boolean {
-  const webhookSecret = process.env.CLAPAY_WEBHOOK_SECRET?.trim();
-  const webhookUniqueKey = process.env.CLAPAY_WEBHOOK_UNIQUE_KEY?.trim();
+  const webhookSecret = envValue("CLAPAY_WEBHOOK_SECRET", "CLAPAY_SECRET_KEY");
+  const webhookUniqueKey = envValue("CLAPAY_WEBHOOK_UNIQUE_KEY", "CLAPAY_PUBLIC_KEY");
   if (!webhookSecret || !webhookUniqueKey || !headerValue || !body || typeof body !== "object") {
     return false;
   }
