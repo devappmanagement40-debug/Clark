@@ -14,8 +14,62 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { catlVipOffers } from "@shared/catl-vip-offers";
-import { Edit, Loader2, TrendingUp, Plus, Trash2 } from "lucide-react";
+import { Edit, ImagePlus, Loader2, TrendingUp, Plus, Trash2, X } from "lucide-react";
 import type { Product } from "@shared/schema";
+
+const MAX_PRODUCT_IMAGE_BYTES = 12 * 1024 * 1024;
+const MAX_PRODUCT_IMAGE_DATA_URL_LENGTH = 1_400_000;
+
+async function compressProductImage(file: File): Promise<string> {
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    throw new Error("Choisissez une image JPG, PNG ou WebP.");
+  }
+  if (file.size > MAX_PRODUCT_IMAGE_BYTES) {
+    throw new Error("L’image ne doit pas dépasser 12 Mo.");
+  }
+
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const element = new Image();
+      element.onload = () => resolve(element);
+      element.onerror = () => reject(new Error("Cette image ne peut pas être lue."));
+      element.src = objectUrl;
+    });
+    const scale = Math.min(1, 1200 / image.naturalWidth, 1200 / image.naturalHeight);
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Impossible de préparer cette image.");
+    context.fillStyle = "#fff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    for (const quality of [0.84, 0.72, 0.6]) {
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (result) => result ? resolve(result) : reject(new Error("Impossible de compresser cette image.")),
+          "image/jpeg",
+          quality,
+        );
+      });
+      if (blob.size * 1.38 > MAX_PRODUCT_IMAGE_DATA_URL_LENGTH) continue;
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => typeof reader.result === "string"
+          ? resolve(reader.result)
+          : reject(new Error("Impossible de lire l’image préparée."));
+        reader.onerror = () => reject(new Error("Impossible de lire l’image préparée."));
+        reader.readAsDataURL(blob);
+      });
+      if (dataUrl.length <= MAX_PRODUCT_IMAGE_DATA_URL_LENGTH) return dataUrl;
+    }
+    throw new Error("L’image reste trop volumineuse après compression. Choisissez une image plus légère.");
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+}
 
 const productSchema = z.object({
   name: z.string().min(2, "Nom requis"),
@@ -23,7 +77,7 @@ const productSchema = z.object({
   dailyEarnings: z.string().regex(/^\d+$/, "Entrez un montant entier"),
   cycleDays: z.string().regex(/^[1-9]\d*$/, "La durée doit être supérieure à zéro"),
   purchaseLimitPerUser: z.string().regex(/^(?:[1-9]\d*)?$/, "Entrez une limite positive ou laissez vide"),
-  imageUrl: z.string().optional(),
+  imageUrl: z.string().max(MAX_PRODUCT_IMAGE_DATA_URL_LENGTH, "L’image est trop volumineuse.").optional(),
   sortOrder: z.string().regex(/^\d+$/, "Entrez un ordre entier"),
   isFree: z.boolean(),
   isActive: z.boolean(),
@@ -51,6 +105,7 @@ export default function AdminProducts() {
   const { toast } = useToast();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [uploadingImageFor, setUploadingImageFor] = useState<"create" | "edit" | null>(null);
 
   const { data: products, isLoading } = useQuery<Product[]>({
     queryKey: ["/api/admin/products/all"],
@@ -239,7 +294,17 @@ export default function AdminProducts() {
     createMutation.mutate(data);
   };
 
-  const ProductFormFields = ({ form, isPending, submitLabel }: { form: any; isPending: boolean; submitLabel: string }) => (
+  const ProductFormFields = ({
+    form,
+    formKey,
+    isPending,
+    submitLabel,
+  }: {
+    form: any;
+    formKey: "create" | "edit";
+    isPending: boolean;
+    submitLabel: string;
+  }) => (
     <form onSubmit={form.handleSubmit(submitLabel === "Créer" ? handleCreate : handleUpdate)} className="space-y-4">
       <FormField control={form.control} name="name" render={({ field }) => (
         <FormItem>
@@ -312,8 +377,57 @@ export default function AdminProducts() {
       )} />
       <FormField control={form.control} name="imageUrl" render={({ field }) => (
         <FormItem>
-          <FormLabel>URL de l'image <span className="text-muted-foreground font-normal">(optionnel)</span></FormLabel>
-          <FormControl><Input {...field} placeholder="https://..." /></FormControl>
+          <FormLabel>Image du produit <span className="text-muted-foreground font-normal">(facultative)</span></FormLabel>
+          <FormControl>
+            <div className="space-y-3">
+              <Input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                disabled={uploadingImageFor === formKey}
+                onChange={async (event) => {
+                  const input = event.currentTarget;
+                  const file = input.files?.[0];
+                  if (!file) return;
+                  setUploadingImageFor(formKey);
+                  try {
+                    field.onChange(await compressProductImage(file));
+                    toast({ title: "Image prête", description: "Elle sera enregistrée avec le produit." });
+                  } catch (error) {
+                    toast({
+                      title: "Importation de l’image impossible",
+                      description: error instanceof Error ? error.message : "Réessayez avec une autre image.",
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setUploadingImageFor(null);
+                    input.value = "";
+                  }
+                }}
+              />
+              {field.value && (
+                <div className="flex items-center gap-3 rounded-md border p-2">
+                  <img
+                    src={field.value}
+                    alt="Aperçu de l’image du produit"
+                    className="h-16 w-20 rounded object-contain"
+                  />
+                  <span className="min-w-0 flex-1 text-sm text-muted-foreground">Image sélectionnée</span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    aria-label="Retirer l’image du produit"
+                    onClick={() => field.onChange("")}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                JPG, PNG ou WebP. L’image est compressée avant son enregistrement.
+              </p>
+            </div>
+          </FormControl>
           <FormMessage />
         </FormItem>
       )} />
@@ -325,8 +439,17 @@ export default function AdminProducts() {
           </p>
         </div>
       )}
-      <Button type="submit" className="w-full" disabled={isPending} data-testid="button-save-product">
-        {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : submitLabel}
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={isPending || uploadingImageFor === formKey}
+        data-testid="button-save-product"
+      >
+        {isPending || uploadingImageFor === formKey ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <><ImagePlus className="mr-2 h-4 w-4" />{submitLabel}</>
+        )}
       </Button>
     </form>
   );
@@ -455,7 +578,7 @@ export default function AdminProducts() {
             <DialogTitle>Nouveau produit</DialogTitle>
           </DialogHeader>
           <Form {...createForm}>
-            <ProductFormFields form={createForm} isPending={createMutation.isPending} submitLabel="Créer" />
+            <ProductFormFields form={createForm} formKey="create" isPending={createMutation.isPending} submitLabel="Créer" />
           </Form>
         </DialogContent>
       </Dialog>
@@ -470,7 +593,7 @@ export default function AdminProducts() {
             Les changements de prix, de gains ou de durée peuvent aussi modifier les investissements déjà en cours.
           </p>
           <Form {...editForm}>
-            <ProductFormFields form={editForm} isPending={updateMutation.isPending} submitLabel="Enregistrer" />
+            <ProductFormFields form={editForm} formKey="edit" isPending={updateMutation.isPending} submitLabel="Enregistrer" />
           </Form>
         </DialogContent>
       </Dialog>

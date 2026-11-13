@@ -135,6 +135,14 @@ import { notifyTelegramPaymentError } from "./telegram-events";
 import express from "express";
 
 const currentCatlProductNames = new Set<string>(catlVipOffers.map(offer => offer.name));
+const MAX_PRODUCT_IMAGE_DATA_URL_LENGTH = 1_400_000;
+
+function isAllowedProductImage(value: unknown): boolean {
+  if (value === undefined || value === null || value === "") return true;
+  if (typeof value !== "string" || value.length > MAX_PRODUCT_IMAGE_DATA_URL_LENGTH) return false;
+  if (!value.startsWith("data:")) return true;
+  return /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value);
+}
 
 // --- Brute-force protection (in-memory) ---
 const loginAttempts = new Map<string, { count: number; blockedUntil: number }>();
@@ -4287,6 +4295,9 @@ export async function registerRoutes(
       const purchaseLimitPerUser = purchaseLimitValue === undefined || purchaseLimitValue === null || purchaseLimitValue === ""
         ? null
         : Number(purchaseLimitValue);
+      if (!isAllowedProductImage(imageUrl)) {
+        return res.status(400).json({ message: "Choisissez une image JPG, PNG ou WebP de taille raisonnable." });
+      }
       if (
         typeof name !== "string" || !name.trim() ||
         !Number.isInteger(priceInt) || priceInt < 0 ||
@@ -4295,8 +4306,7 @@ export async function registerRoutes(
         !Number.isInteger(cycleInt) || cycleInt <= 0 ||
         !Number.isInteger(sortOrderInt) || sortOrderInt < 0 ||
         (purchaseLimitPerUser !== null && (!Number.isSafeInteger(purchaseLimitPerUser) || purchaseLimitPerUser < 1)) ||
-        (isFreeProduct && purchaseLimitPerUser !== null) ||
-        (imageUrl !== undefined && imageUrl !== null && typeof imageUrl !== "string")
+        (isFreeProduct && purchaseLimitPerUser !== null)
       ) {
         return res.status(400).json({
           message: "Vérifiez le nom, le prix, les gains, la durée, la limite et l’ordre du produit.",
@@ -4353,6 +4363,9 @@ export async function registerRoutes(
       const isFree = body.isFree === undefined ? current.isFree : body.isFree;
       const isActive = body.isActive === undefined ? current.isActive : body.isActive;
       const imageUrl = body.imageUrl === undefined ? current.imageUrl : body.imageUrl;
+      if (!isAllowedProductImage(imageUrl)) {
+        return res.status(400).json({ message: "Choisissez une image JPG, PNG ou WebP de taille raisonnable." });
+      }
       const purchaseLimitValue = body.purchaseLimitPerUser === undefined
         ? current.purchaseLimitPerUser
         : body.purchaseLimitPerUser;
@@ -4369,8 +4382,7 @@ export async function registerRoutes(
         (purchaseLimitPerUser !== null && (!Number.isSafeInteger(purchaseLimitPerUser) || purchaseLimitPerUser < 1)) ||
         (isFree && purchaseLimitPerUser !== null) ||
         typeof isFree !== "boolean" ||
-        typeof isActive !== "boolean" ||
-        (imageUrl !== null && typeof imageUrl !== "string")
+        typeof isActive !== "boolean"
       ) {
         return res.status(400).json({ message: "Les valeurs du produit sont invalides." });
       }
