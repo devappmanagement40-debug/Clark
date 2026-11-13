@@ -13,6 +13,15 @@ export type ClapayPayoutOptions = {
   operators: Array<Omit<ClapayOperator, "requiresOtp">>;
 };
 
+export type ClapayCountryBalance = {
+  balance: number;
+  deposit: number;
+  withdrawal: number;
+  potentialBalance: number;
+  possibleWithdrawal: number;
+  update?: string;
+};
+
 export type ClapayStatusResult = {
   rawStatus: string;
   status: "approved" | "rejected" | "pending";
@@ -634,6 +643,52 @@ export async function getClapayPayoutOptions(country: string): Promise<ClapayPay
       };
     }),
   };
+}
+
+export function parseClapayCountryBalance(payload: unknown): ClapayCountryBalance {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Clapay a renvoyé un solde pays invalide");
+  }
+  const root = payload as JsonRecord;
+  const data = root.data && typeof root.data === "object" && !Array.isArray(root.data)
+    ? root.data as JsonRecord
+    : root;
+  const readAmount = (key: keyof Omit<ClapayCountryBalance, "update">): number => {
+    const value = data[key];
+    const amount = typeof value === "number"
+      ? value
+      : typeof value === "string" && value.trim()
+        ? Number(value)
+        : Number.NaN;
+    if (!Number.isFinite(amount)) {
+      throw new Error("Clapay a renvoyé des informations de solde incomplètes");
+    }
+    return amount;
+  };
+  const update = typeof data.update === "string" && data.update.trim()
+    ? data.update.trim()
+    : undefined;
+  return {
+    balance: readAmount("balance"),
+    deposit: readAmount("deposit"),
+    withdrawal: readAmount("withdrawal"),
+    potentialBalance: readAmount("potentialBalance"),
+    possibleWithdrawal: readAmount("possibleWithdrawal"),
+    ...(update ? { update } : {}),
+  };
+}
+
+export async function getClapayCountryBalance(country: string): Promise<ClapayCountryBalance> {
+  const normalizedCountry = country.trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(normalizedCountry)) {
+    throw new Error("Code pays Clapay invalide");
+  }
+  const config = loadConfig();
+  const data = await callClapay(
+    config,
+    `/nowallet/api/check/transactions/single/balances/${encodeURIComponent(normalizedCountry)}`,
+  );
+  return parseClapayCountryBalance(data);
 }
 
 export function normalizeClapayPayoutPhone(

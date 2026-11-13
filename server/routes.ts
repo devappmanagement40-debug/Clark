@@ -116,6 +116,7 @@ import {
 import {
   checkClapayPayout,
   checkClapayPayment,
+  getClapayCountryBalance,
   getClapayPayoutOptions,
   getClapayOperators,
   initiateClapayPayout,
@@ -3571,6 +3572,42 @@ export async function registerRoutes(
       res.json(payouts.map(serializeClapayPayout));
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Impossible de lire les payouts Clapay" });
+    }
+  });
+
+  app.get("/api/admin/clapay/balance/:country", requireAdmin, async (req, res) => {
+    const countryCode = getRouteParam(req.params.country).trim().toUpperCase();
+    if (!/^[A-Z]{2}$/.test(countryCode)) {
+      return res.status(400).json({ message: "Code pays invalide" });
+    }
+    try {
+      const [settings, activeCountries] = await Promise.all([
+        storage.getSettings(),
+        storage.getActiveCountries(),
+      ]);
+      const country = activeCountries.find(
+        (entry) => entry.code.trim().toUpperCase() === countryCode,
+      );
+      if (!country || !getClapayPayoutCountryCodes(activeCountries, settings).includes(countryCode)) {
+        return res.status(403).json({
+          message: "Ce pays doit être actif et routé vers Clapay pour les dépôts",
+        });
+      }
+      if (!isClapayConfigured()) {
+        return res.status(503).json({ message: "La configuration Clapay du serveur est incomplète" });
+      }
+      const balance = await getClapayCountryBalance(countryCode);
+      return res.json({
+        country: countryCode,
+        name: country.name,
+        currency: country.currency,
+        ...balance,
+      });
+    } catch (error: any) {
+      const status = error?.message?.includes("Configuration Clapay manquante") ? 503 : 502;
+      return res.status(status).json({
+        message: error.message || "Impossible de consulter le solde Clapay",
+      });
     }
   });
 
