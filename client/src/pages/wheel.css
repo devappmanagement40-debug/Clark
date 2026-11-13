@@ -1,7 +1,10 @@
 .wheel-page {
   --wheel-ink: #542825;
   position: relative;
-  min-height: 100dvh;
+  display: flex;
+  height: 100dvh;
+  min-height: 0;
+  flex-direction: column;
   overflow: hidden;
   isolation: isolate;
   padding: max(53px, env(safe-area-inset-top)) 18px calc(16px + env(safe-area-inset-bottom));
@@ -59,11 +62,17 @@
 }
 
 .wheel-content {
+  display: flex;
   width: min(100%, 540px);
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
   margin: 0 auto;
+  overflow: hidden;
 }
 
 .wheel-heading {
+  flex: 0 0 auto;
   padding: 14px 12px 0;
   color: #a64220;
   text-align: center;
@@ -113,9 +122,25 @@
   grid-template-rows: repeat(2, 32px);
   height: 71px;
   min-height: 71px;
+  flex: 0 0 71px;
   gap: 7px;
   width: calc(100% + 36px);
   margin: 14px -18px 0;
+}
+
+.wheel-scroll-content {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.wheel-scroll-content::-webkit-scrollbar {
+  display: none;
 }
 
 .wheel-ticker {

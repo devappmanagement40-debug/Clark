@@ -260,49 +260,51 @@ export default function WheelPage() {
           </div>
         </div>
 
-        <WheelIllustration slices={wheelSlices} rotation={rotation} isSpinning={isAnimating} />
+        <div className="wheel-scroll-content">
+          <WheelIllustration slices={wheelSlices} rotation={rotation} isSpinning={isAnimating} />
 
-        <div className="wheel-spins" aria-label={`Nombre de tirages restants : ${spinCount}`}>
-          <span>Nombre de tirages restants: <strong>{spinCount}</strong></span>
-        </div>
-        <button
-          type="button"
-          className="wheel-draw-button"
-          disabled={drawBusy || configQuery.isError || !configQuery.data || spinsQuery.isError || availableSpins < 1}
-          aria-busy={drawBusy}
-          onClick={() => {
-            setDrawResult(null);
-            drawMutation.mutate();
-          }}
-          data-testid="button-wheel-draw"
-        >
-          <span>{drawBusy ? "Tirage en cours…" : "Lancer le tirage"}</span>
-        </button>
-        {drawResult && !isAnimating && (
-          <p className="wheel-draw-result" role="status">
-            {drawResult.status === "credited"
-              ? `Gain crédité : ${drawResult.prizeValue}`
-              : `Lot gagné : ${drawResult.prizeValue} — remise en attente`}
-          </p>
-        )}
-        <section className="wheel-event" aria-labelledby="wheel-event-title">
-          <h2 id="wheel-event-title">PRÉSENTATION DE L'ÉVÉNEMENT</h2>
-          <div className="wheel-event-card">
-            <div className="wheel-event-note-heading">
-              <h3>À savoir</h3>
-            </div>
-            <p>
-              Chaque achat payant confirmé vous attribue {config.buyerSpinsPerPurchase} tour{config.buyerSpinsPerPurchase === 1 ? "" : "s"}.
-              {" "}Chaque achat payant confirmé réalisé par votre filleul direct vous attribue {config.referralSpinsPerPurchase} tour{config.referralSpinsPerPurchase === 1 ? "" : "s"}.
-            </p>
+          <div className="wheel-spins" aria-label={`Nombre de tirages restants : ${spinCount}`}>
+            <span>Nombre de tirages restants: <strong>{spinCount}</strong></span>
           </div>
-        </section>
-        {configQuery.isError && (
-          <p className="wheel-config-warning" role="alert">Impossible de charger la roue. Le tirage est temporairement désactivé.</p>
-        )}
-        {spinsQuery.isError && (
-          <p className="wheel-config-warning" role="alert">Impossible de vérifier vos tours disponibles. Réessayez dans quelques instants.</p>
-        )}
+          <button
+            type="button"
+            className="wheel-draw-button"
+            disabled={drawBusy || configQuery.isError || !configQuery.data || spinsQuery.isError || availableSpins < 1}
+            aria-busy={drawBusy}
+            onClick={() => {
+              setDrawResult(null);
+              drawMutation.mutate();
+            }}
+            data-testid="button-wheel-draw"
+          >
+            <span>{drawBusy ? "Tirage en cours…" : "Lancer le tirage"}</span>
+          </button>
+          {drawResult && !isAnimating && (
+            <p className="wheel-draw-result" role="status">
+              {drawResult.status === "credited"
+                ? `Gain crédité : ${drawResult.prizeValue}`
+                : `Lot gagné : ${drawResult.prizeValue} — remise en attente`}
+            </p>
+          )}
+          <section className="wheel-event" aria-labelledby="wheel-event-title">
+            <h2 id="wheel-event-title">PRÉSENTATION DE L'ÉVÉNEMENT</h2>
+            <div className="wheel-event-card">
+              <div className="wheel-event-note-heading">
+                <h3>À savoir</h3>
+              </div>
+              <p>
+                Chaque achat payant confirmé vous attribue {config.buyerSpinsPerPurchase} tour{config.buyerSpinsPerPurchase === 1 ? "" : "s"}.
+                {" "}Chaque achat payant confirmé réalisé par votre filleul direct vous attribue {config.referralSpinsPerPurchase} tour{config.referralSpinsPerPurchase === 1 ? "" : "s"}.
+              </p>
+            </div>
+          </section>
+          {configQuery.isError && (
+            <p className="wheel-config-warning" role="alert">Impossible de charger la roue. Le tirage est temporairement désactivé.</p>
+          )}
+          {spinsQuery.isError && (
+            <p className="wheel-config-warning" role="alert">Impossible de vérifier vos tours disponibles. Réessayez dans quelques instants.</p>
+          )}
+        </div>
 
       </div>
       <Dialog
