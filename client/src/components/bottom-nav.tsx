@@ -29,6 +29,7 @@ export default function BottomNav() {
     "/my-page/deposit-history",
     "/my-page/deposits-history",
     "/my-page/withdrawal-history",
+    "/my-page/partner-missions",
   ].includes(location);
 
   return (

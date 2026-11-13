@@ -248,6 +248,13 @@ function Router() {
           </AppLayout>
         </ProtectedRoute>
       </Route>
+      <Route path="/my-page/partner-missions">
+        <ProtectedRoute>
+          <AppLayout>
+            <TasksPage />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
       <Route path="/my-page/invest">
         <ProtectedRoute>
           <AppLayout>
