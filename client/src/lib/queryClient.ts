@@ -20,13 +20,36 @@ export async function withProcessingIndicator<T>(operation: () => Promise<T>): P
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = await res.text();
-    let message = res.statusText;
+    const fallbackMessage = res.status >= 500
+      ? "Le serveur rencontre une erreur. Réessayez dans quelques instants."
+      : "La requête n’a pas abouti. Vérifiez les informations saisies.";
+    let message = fallbackMessage;
     let data: Record<string, any> | undefined;
-    try {
-      data = JSON.parse(text);
-      message = data?.message || data?.error || res.statusText;
-    } catch {
-      message = text || res.statusText;
+    const contentType = res.headers.get("content-type")?.toLowerCase() || "";
+    const isHtmlResponse =
+      contentType.includes("text/html") ||
+      /^\s*(?:<!doctype html|<html\b)/i.test(text);
+
+    if (!isHtmlResponse) {
+      try {
+        data = JSON.parse(text);
+        const candidate = data?.message || data?.error;
+        if (typeof candidate === "string" && candidate.trim()) {
+          const trimmed = candidate.trim();
+          const containsMarkupOrEncodedPayload =
+            /<!doctype html|<html\b|<svg\b|data:image\/[^;]+;base64,/i.test(trimmed) ||
+            /[A-Za-z0-9+/]{512,}={0,2}/.test(trimmed);
+          message = trimmed.length <= 300 && !containsMarkupOrEncodedPayload
+            ? trimmed
+            : fallbackMessage;
+        }
+      } catch {
+        const trimmed = text.trim();
+        const containsEncodedPayload = /[A-Za-z0-9+/]{512,}={0,2}/.test(trimmed);
+        if (trimmed && trimmed.length <= 300 && !containsEncodedPayload) {
+          message = trimmed;
+        }
+      }
     }
     const error = new Error(message) as Error & { status?: number; data?: Record<string, any> };
     error.status = res.status;
