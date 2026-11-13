@@ -45,6 +45,14 @@ function clapayOperatorLogo(country: string, operatorName?: string) {
   if (country === "TG" && (normalized.includes("tmoney") || normalized.includes("togocel") || normalized.includes("yastogo"))) {
     return "/operators/tmoney.png";
   }
+  if (country === "CI" || country === "BJ") {
+    if (normalized.includes("wave")) return "/operators/wave.png";
+    if (normalized.includes("orange")) return "/operators/orange.png";
+    if (normalized.includes("mtn")) {
+      return country === "BJ" ? "/operators/mtn-benin.jpg" : "/operators/mtn.png";
+    }
+    if (normalized.includes("moov")) return "/operators/moov.jpg";
+  }
   return null;
 }
 
@@ -117,9 +125,11 @@ export default function RobotPayPage() {
   const forcedProvider = requestedProvider === "ashtech" || requestedProvider === "sendavapay" || requestedProvider === "clapay"
     ? requestedProvider
     : "";
-  const isClapayStyledFlow = forcedProvider === "clapay" && (country === "BF" || country === "NE" || country === "TG");
+  const isClapayStyledFlow = forcedProvider === "clapay"
+    && (country === "BF" || country === "NE" || country === "TG" || country === "CI" || country === "BJ");
   // Legacy name for shared CATL styling branches.
   const isBjClapayFlow = isClapayStyledFlow;
+  const clapayPhoneDigits = country === "BJ" || country === "CI" ? 10 : 8;
   const feePaymentId = Number(params.get("feePaymentId") || 0) || undefined;
   const withdrawalAmount = Number(params.get("withdrawalAmount") || 0) || undefined;
   const parsedClapayReturnDepositId = forcedProvider === "clapay"
@@ -138,7 +148,8 @@ export default function RobotPayPage() {
       ? { name: returnOperatorName, provider: "clapay" }
       : null,
   );
-  const isClapayPhoneValid = !isClapayStyledFlow || phone.replace(/\D/g, "").length === 8;
+  const isClapayPhoneValid = !isClapayStyledFlow
+    || phone.replace(/\D/g, "").length === clapayPhoneDigits;
   const canContinueFromOperatorSelection = Boolean(operator && phone.trim() && isClapayPhoneValid);
   const [depositId, setDepositId] = useState<number | null>(clapayReturnDepositId);
   const [transactionReference] = useState(() => `dépôt-${Math.floor(10000 + Math.random() * 90000)}`);
@@ -701,7 +712,7 @@ export default function RobotPayPage() {
     if (isClapayStyledFlow && !isClapayPhoneValid) {
       toast({
         title: "Numéro invalide",
-        description: `Saisissez exactement 8 chiffres pour votre numéro Mobile Money${countryInfo?.name ? ` au ${countryInfo.name}` : ""}.`,
+        description: `Saisissez exactement ${clapayPhoneDigits} chiffres pour votre numéro Mobile Money${countryInfo?.name ? ` au ${countryInfo.name}` : ""}.`,
         variant: "destructive",
       });
       return;
@@ -947,19 +958,19 @@ export default function RobotPayPage() {
                   <input
                     id="robotpay-payer-phone-selection"
                     value={phone}
-                    onChange={event => setPhone(event.target.value.replace(/\D/g, "").slice(0, isClapayStyledFlow ? 8 : 12))}
+                    onChange={event => setPhone(event.target.value.replace(/\D/g, "").slice(0, isClapayStyledFlow ? clapayPhoneDigits : 12))}
                     type="tel"
                     inputMode="numeric"
                     autoComplete="tel-national"
                     aria-required="true"
-                    maxLength={isClapayStyledFlow ? 8 : 12}
+                    maxLength={isClapayStyledFlow ? clapayPhoneDigits : 12}
                     className="w-full min-w-0 bg-transparent px-3 py-2.5 text-[#111827] outline-none placeholder:text-sm placeholder:text-[#98a2b3]"
                   />
                 </div>
                 {isClapayStyledFlow && (
                   <div className="flex items-start gap-2 rounded-lg border border-[#f0dfa0] bg-[#fff7cf] px-3 py-3 text-xs leading-5 text-[#695b20]">
                     <Info aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
-                    <p>Saisissez les 8 chiffres du numéro Mobile Money utilisé pour le dépôt CATL. La demande de paiement sera ensuite envoyée sur ce numéro.</p>
+                    <p>Saisissez les {clapayPhoneDigits} chiffres de votre numéro Mobile Money au {countryInfo?.name || country}. La demande de paiement sera ensuite envoyée sur ce numéro.</p>
                   </div>
                 )}
               </div>
