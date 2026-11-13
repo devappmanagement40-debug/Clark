@@ -1,5 +1,27 @@
 export const DEFAULT_CLAPAY_PAYOUT_COUNTRIES = ["NE", "BF"] as const;
 
+export type ClapayPayoutCountry = {
+  code: string;
+  isActive: boolean;
+};
+
+export function deriveClapayPayoutCountries(
+  countries: ClapayPayoutCountry[],
+  depositRouting: Record<string, string[]>,
+  clapayEnabled: boolean,
+): string[] {
+  if (!clapayEnabled) return [];
+
+  return countries
+    .filter((country) => {
+      const code = country.code.trim().toUpperCase();
+      return country.isActive
+        && /^[A-Z]{2}$/.test(code)
+        && (depositRouting[code] || []).includes("clapay");
+    })
+    .map((country) => country.code.trim().toUpperCase());
+}
+
 export function parseClapayPayoutCountries(raw: string | undefined): string[] {
   if (raw === undefined || raw.trim() === "") {
     return [...DEFAULT_CLAPAY_PAYOUT_COUNTRIES];

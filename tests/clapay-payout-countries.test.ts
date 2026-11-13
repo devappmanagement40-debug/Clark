@@ -2,8 +2,37 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   DEFAULT_CLAPAY_PAYOUT_COUNTRIES,
+  deriveClapayPayoutCountries,
   parseClapayPayoutCountries,
 } from "../shared/clapay-payout-countries";
+
+test("derives payout countries from active Clapay deposit routing", () => {
+  assert.deepEqual(
+    deriveClapayPayoutCountries(
+      [
+        { code: "CI", isActive: true },
+        { code: "BJ", isActive: true },
+        { code: "TG", isActive: true },
+        { code: "BF", isActive: false },
+        { code: "TCH", isActive: true },
+      ],
+      { CI: ["manual", "clapay"], BJ: ["clapay"], TG: ["manual"], BF: ["clapay"], TCH: ["clapay"] },
+      true,
+    ),
+    ["CI", "BJ"],
+  );
+});
+
+test("does not derive payout countries while Clapay is globally disabled", () => {
+  assert.deepEqual(
+    deriveClapayPayoutCountries(
+      [{ code: "CI", isActive: true }],
+      { CI: ["clapay"] },
+      false,
+    ),
+    [],
+  );
+});
 
 test("keeps the existing Clapay payout countries when no setting exists", () => {
   assert.deepEqual(parseClapayPayoutCountries(undefined), ["NE", "BF"]);

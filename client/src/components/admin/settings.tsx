@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,8 +34,7 @@ import {
   readPercentageSetting,
 } from "@shared/platform-settings";
 import {
-  DEFAULT_CLAPAY_PAYOUT_COUNTRIES,
-  parseClapayPayoutCountries,
+  deriveClapayPayoutCountries,
 } from "@shared/clapay-payout-countries";
 import {
   DEPOSIT_METHOD_IDS,
@@ -220,9 +219,6 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
     Record<string, DepositOperatorCatalog>
   >({});
   const [loadingOperatorCatalogs, setLoadingOperatorCatalogs] = useState<Record<string, boolean>>({});
-  const [clapayPayoutCountries, setClapayPayoutCountries] = useState<string[]>([
-    ...DEFAULT_CLAPAY_PAYOUT_COUNTRIES,
-  ]);
 
   const loadDepositOperatorCatalog = async (country: string, provider: DepositOperatorProviderId) => {
     const normalizedCountry = country.trim().toUpperCase();
@@ -304,6 +300,15 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       clapayChannelName: "Clapay",
     },
   });
+  const clapayEnabled = form.watch("clapayEnabled");
+  const clapayPayoutCountries = useMemo(
+    () => deriveClapayPayoutCountries(
+      countries,
+      depositMethodsByCountry,
+      clapayEnabled,
+    ),
+    [countries, depositMethodsByCountry, clapayEnabled],
+  );
 
   useEffect(() => {
     if (settings) {
@@ -370,11 +375,6 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       } catch {
         setDepositOperatorsByCountry({});
       }
-      try {
-        setClapayPayoutCountries(parseClapayPayoutCountries(settings.clapayPayoutCountries));
-      } catch {
-        setClapayPayoutCountries([...DEFAULT_CLAPAY_PAYOUT_COUNTRIES]);
-      }
     }
   }, [settings, form, countries, paymentNumbers, countriesLoading, paymentNumbersLoading]);
 
@@ -384,7 +384,6 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         ...data,
         depositMethodsByCountry: JSON.stringify(depositMethodsByCountry),
         depositOperatorsByCountry: JSON.stringify(depositOperatorsByCountry),
-        clapayPayoutCountries: JSON.stringify(clapayPayoutCountries),
         supportEnabled: String(data.supportEnabled),
         support2Enabled: String(data.support2Enabled),
         channelEnabled: String(data.channelEnabled),
@@ -1219,46 +1218,29 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
             )} />
             <div className="space-y-2 rounded-xl border p-3">
               <div>
-                <p className="text-sm font-semibold">Pays autorisés pour les retraits Clapay</p>
+              <p className="text-sm font-semibold">Pays Clapay disponibles pour les payouts</p>
                 <p className="text-xs text-muted-foreground">
-                  Cette liste contrôle les virements Clapay envoyés depuis l’administration. Elle n’active pas les dépôts.
-                  Vérifiez la prise en charge du pays par Clapay avant de l’autoriser.
+                  La liste suit automatiquement les pays actifs où Clapay est choisi pour les dépôts, si Clapay est activé.
+                  Retirez Clapay du routage d’un pays pour bloquer ses payouts dans l’administration.
                 </p>
               </div>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {[...countries]
-                  .sort((a, b) => Number(b.isActive) - Number(a.isActive) || a.name.localeCompare(b.name))
-                  .map((country) => {
-                    const code = country.code.trim().toUpperCase();
-                    const checked = clapayPayoutCountries.includes(code);
-                    const isTwoLetterCode = /^[A-Z]{2}$/.test(code);
-                    const payoutCountrySupported = country.isActive && isTwoLetterCode;
+              <div className="flex flex-wrap gap-2">
+                {clapayPayoutCountries.length > 0 ? (
+                  clapayPayoutCountries.map((code) => {
+                    const countryName = countries.find(
+                      (country) => country.code.trim().toUpperCase() === code,
+                    )?.name || code;
                     return (
-                      <label
-                        key={code}
-                        className={`flex items-center gap-2 rounded-lg border p-2 text-sm ${payoutCountrySupported ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          disabled={!payoutCountrySupported}
-                          onChange={(event) => {
-                            setClapayPayoutCountries((current) => event.target.checked
-                              ? [...current, code]
-                              : current.filter((value) => value !== code));
-                          }}
-                        />
-                        <span>{country.name}</span>
-                        <span className="text-xs text-muted-foreground">({code})</span>
-                        {!country.isActive && (
-                          <span className="ml-auto text-xs text-amber-700">Pays désactivé</span>
-                        )}
-                        {country.isActive && !isTwoLetterCode && (
-                          <span className="ml-auto text-xs text-muted-foreground">Code à 2 lettres requis par Clapay</span>
-                        )}
-                      </label>
+                      <span key={code} className="rounded-full border bg-muted px-3 py-1 text-sm">
+                        {countryName} ({code})
+                      </span>
                     );
-                  })}
+                  })
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Aucun pays actif n’est actuellement routé vers Clapay pour les dépôts.
+                  </p>
+                )}
               </div>
             </div>
             <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-3 text-xs text-indigo-900 space-y-1">
