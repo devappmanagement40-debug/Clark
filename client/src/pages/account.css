@@ -444,12 +444,8 @@ body:has(.cp-account) { background: #fff !important; }
   --account-blue: #123f83;
   --account-blue-deep: #082f70;
   --account-ink: #24262a;
-  display: flex;
-  height: 100dvh;
-  min-height: 0;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 0;
+  min-height: 100dvh;
+  padding: 0 0 calc(68px + env(safe-area-inset-bottom));
   background: #fff !important;
   color: var(--account-ink);
   font-family: Arial, sans-serif;
@@ -460,21 +456,17 @@ body:has(.cp-account) {
 }
 
 .cp-account-shell {
-  display: flex;
   width: min(100%, 520px);
-  height: 100%;
-  min-height: 0;
-  flex: 1 1 auto;
-  flex-direction: column;
+  min-height: 100dvh;
   margin: 0 auto;
-  overflow: hidden;
-  padding: 0;
+  padding: 0 0 20px;
   background: #fff;
 }
 
 .cp-account-header {
-  position: relative;
-  flex: 0 0 auto;
+  position: sticky;
+  z-index: 10;
+  top: 0;
   height: 258px;
   overflow: hidden;
   padding: 0;
@@ -669,14 +661,6 @@ body:has(.cp-account) {
 }
 
 .cp-account-services {
-  min-height: 0;
-  flex: 1 1 0%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-bottom: calc(72px + env(safe-area-inset-bottom));
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
   margin: 31px auto 0;
   border: 0;
   border-radius: 0;
