@@ -61,9 +61,11 @@ type ClapayConfig = {
   webhookUniqueKey: string;
 };
 
-function requiredEnv(name: string): string {
-  const value = envValue(name);
-  if (!value) throw new Error(`Configuration Clapay manquante dans Plesk : ${name}`);
+function requiredEnv(...names: string[]): string {
+  const value = envValue(...names);
+  if (!value) {
+    throw new Error(`Configuration Clapay manquante dans Plesk : ${names.join(" ou ")}`);
+  }
   return value;
 }
 
