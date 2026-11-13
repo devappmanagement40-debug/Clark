@@ -10,9 +10,13 @@
   --cp-paper: #fff;
   --cp-line: #e7ebf2;
   position: relative;
+  display: flex;
+  height: 100dvh;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
   isolation: isolate;
-  min-height: 100dvh;
-  padding: 0 0 calc(78px + env(safe-area-inset-bottom));
+  padding: 0 0 calc(62px + env(safe-area-inset-bottom));
   background: #f1f2f6 !important;
   color: var(--cp-ink);
   font-family: "DM Sans", sans-serif;
@@ -27,14 +31,21 @@ body:has(.cp-home) { background: #f1f2f6 !important; }
 .cp-shell {
   position: relative;
   z-index: 1;
+  display: flex;
   width: min(100%, 520px);
+  height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
   margin: 0 auto;
-  padding: 0 0 18px;
+  overflow: hidden;
+  padding: 0;
   background: #f1f2f6;
 }
 
 .cp-hero {
   position: relative;
+  flex: 0 0 auto;
   isolation: isolate;
   height: clamp(220px, 62vw, 285px);
   margin: 0;
@@ -66,6 +77,7 @@ body:has(.cp-home) { background: #f1f2f6 !important; }
 .cp-summary {
   position: relative;
   z-index: 2;
+  flex: 0 0 auto;
   margin: -25px 18px 14px;
 }
 
@@ -265,6 +277,7 @@ body:has(.cp-home) { background: #f1f2f6 !important; }
 
 .cp-actions {
   display: grid;
+  flex: 0 0 auto;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
   margin: 0 18px 12px;
@@ -330,8 +343,17 @@ body:has(.cp-home) { background: #f1f2f6 !important; }
 
 .cp-products {
   display: grid;
+  min-height: 0;
+  flex: 1 1 auto;
+  align-content: start;
+  grid-auto-rows: max-content;
   gap: 12px;
   margin: 0 18px 14px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
 .cp-products-state {
