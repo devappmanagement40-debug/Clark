@@ -3591,7 +3591,7 @@ export async function registerRoutes(
       const country = activeCountries.find(
         (entry) => entry.code.trim().toUpperCase() === countryCode,
       );
-      if (!country || !getClapayPayoutCountryCodes(activeCountries, settings).includes(countryCode)) {
+      if (!country || !getAssignedDepositMethods(countryCode, settings).includes("clapay")) {
         return res.status(403).json({
           message: "Ce pays doit être actif et routé vers Clapay pour les dépôts",
         });

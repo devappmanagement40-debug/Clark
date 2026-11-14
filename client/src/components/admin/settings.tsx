@@ -1248,79 +1248,11 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
                   </p>
                 )}
               </div>
-              {clapayPayoutCountries.length > 0 && (
-                <div className="space-y-2 border-t pt-3">
-                  <p className="text-sm font-semibold">Soldes Clapay par pays</p>
-                  {clapayPayoutCountries.map((code) => {
-                    const country = countries.find(
-                      (entry) => entry.code.trim().toUpperCase() === code,
-                    );
-                    const balance = clapayBalances[code];
-                    const formatAmount = (amount: number, currency: string) => {
-                      const formatted = amount.toLocaleString("fr-FR", {
-                        maximumFractionDigits: 2,
-                      });
-                      return currency ? `${formatted} ${currency}` : formatted;
-                    };
-                    return (
-                      <div key={code} className="space-y-2 rounded-lg border bg-background p-3">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="text-sm font-medium">
-                            {country?.name || code} ({code})
-                          </p>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            onClick={() => clapayBalanceMutation.mutate(code)}
-                            disabled={
-                              clapayBalanceMutation.isPending
-                              && clapayBalanceMutation.variables === code
-                            }
-                          >
-                            {clapayBalanceMutation.isPending && clapayBalanceMutation.variables === code
-                              ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              : <RefreshCw className="mr-2 h-4 w-4" />}
-                            {balance ? "Actualiser" : "Consulter"}
-                          </Button>
-                        </div>
-                        {balance && (
-                          <>
-                            <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
-                              <div className="rounded-md bg-muted p-2">
-                                <p className="text-muted-foreground">Solde</p>
-                                <p className="font-semibold">{formatAmount(balance.balance, balance.currency)}</p>
-                              </div>
-                              <div className="rounded-md bg-muted p-2">
-                                <p className="text-muted-foreground">Dépôts cumulés</p>
-                                <p className="font-semibold">{formatAmount(balance.deposit, balance.currency)}</p>
-                              </div>
-                              <div className="rounded-md bg-muted p-2">
-                                <p className="text-muted-foreground">Retraits cumulés</p>
-                                <p className="font-semibold">{formatAmount(balance.withdrawal, balance.currency)}</p>
-                              </div>
-                              <div className="rounded-md bg-muted p-2">
-                                <p className="text-muted-foreground">En attente</p>
-                                <p className="font-semibold">{formatAmount(balance.potentialBalance, balance.currency)}</p>
-                              </div>
-                              <div className="rounded-md bg-muted p-2">
-                                <p className="text-muted-foreground">Retrait disponible</p>
-                                <p className="font-semibold">{formatAmount(balance.possibleWithdrawal, balance.currency)}</p>
-                              </div>
-                            </div>
-                            {balance.update && (
-                              <p className="text-right text-xs text-muted-foreground">
-                                Mise à jour Clapay : {balance.update}
-                              </p>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
             </div>
+            <AdminClapayCountryBalances
+              countries={countries}
+              countryCodes={clapayBalanceCountries}
+            />
             <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-3 text-xs text-indigo-900 space-y-1">
               <p className="font-semibold">Configuration Clapay dans les variables d’environnement Plesk</p>
               <p>Configurez les quatre noms fournis pour Clapay : <code>CLAPAY_BASE_URL</code>, <code>CLAPAY_API_TOKEN</code>, <code>CLAPAY_SECRET_KEY</code> et <code>CLAPAY_PUBLIC_KEY</code>. Le serveur reconnaît aussi les anciens noms de variables.</p>

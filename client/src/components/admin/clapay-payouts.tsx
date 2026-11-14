@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, withProcessingIndicator } from "@/lib/queryClient";
 import { parseClapayPayoutCountries } from "@shared/clapay-payout-countries";
+import { deriveClapayRoutedCountries } from "@shared/clapay-payout-countries";
+import { parseDepositMethodsByCountry } from "@shared/deposit-method-routing";
+import AdminClapayCountryBalances from "@/components/admin/clapay-country-balances";
 
 type AdminCountry = { code: string; name: string; isActive: boolean };
 
@@ -105,6 +108,15 @@ export default function AdminClapayPayouts() {
       .map((code) => byCode.get(code))
       .filter((entry): entry is AdminCountry => Boolean(entry?.isActive));
   }, [countries, configuredCountryCodes]);
+  const balanceCountryCodes = useMemo(() => {
+    if (!adminSettings) return [];
+    try {
+      const routing = parseDepositMethodsByCountry(adminSettings.depositMethodsByCountry) || {};
+      return deriveClapayRoutedCountries(countries, routing);
+    } catch {
+      return [];
+    }
+  }, [adminSettings, countries]);
 
   useEffect(() => {
     if (!availableCountries.some((entry) => entry.code.toUpperCase() === country)) {
@@ -198,6 +210,12 @@ export default function AdminClapayPayouts() {
 
   return (
     <div className="space-y-6">
+      <AdminClapayCountryBalances
+        countries={countries}
+        countryCodes={balanceCountryCodes}
+        loading={settingsLoading || countriesLoading}
+      />
+
       <Card>
         <CardHeader>
           <CardTitle>Envoyer un payout Clapay</CardTitle>
