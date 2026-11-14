@@ -24,9 +24,6 @@ const wheelPrizeSchema = z.object({
   if (prize.kind === "physical" && prize.amount !== null) {
     context.addIssue({ code: "custom", path: ["amount"], message: "Un lot matériel ne doit pas avoir de montant en espèces." });
   }
-  if (prize.active && prize.probability <= 0) {
-    context.addIssue({ code: "custom", path: ["probability"], message: "Un lot actif doit avoir une probabilité supérieure à 0 %." });
-  }
   if (!prize.active && prize.probability !== 0) {
     context.addIssue({ code: "custom", path: ["probability"], message: "Un lot désactivé doit avoir une probabilité de 0 %." });
   }

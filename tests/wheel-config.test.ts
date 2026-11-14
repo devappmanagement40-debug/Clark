@@ -73,13 +73,17 @@ test("rejects active odds that do not total one hundred percent", () => {
   assert.equal(wheelConfigurationSchema.safeParse(configuration).success, false);
 });
 
-test("rejects an active prize with zero probability", () => {
+test("accepts an active prize with zero probability when the other odds total one hundred", () => {
   const configuration = {
     ...DEFAULT_WHEEL_CONFIGURATION,
     prizes: DEFAULT_WHEEL_CONFIGURATION.prizes.map((prize, index) => (
-      index === 0 ? { ...prize, probability: 0 } : prize
+      index === 0 ? { ...prize, probability: 0 } : index === 1
+        ? { ...prize, probability: 20 }
+        : prize
     )),
   };
 
-  assert.equal(wheelConfigurationSchema.safeParse(configuration).success, false);
+  assert.equal(wheelConfigurationSchema.safeParse(configuration).success, true);
+  assert.equal(getPublicWheelConfiguration(configuration).prizes.length, configuration.prizes.length);
+  assert.equal(selectWeightedWheelPrize(configuration, 0).prize.id, configuration.prizes[1].id);
 });

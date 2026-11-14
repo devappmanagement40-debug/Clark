@@ -188,7 +188,7 @@ export default function AdminWheelSettings() {
           <div className="space-y-1">
             <CardTitle>Lots et probabilités</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Les probabilités des lots actifs doivent totaliser 100 %. Tous les lots restent visibles sur la roue; un lot désactivé ne peut jamais être gagné.
+              Les probabilités des lots actifs doivent totaliser 100 %. Un lot actif réglé à 0 % reste visible sur la roue, mais ne peut jamais être gagné.
             </p>
           </div>
           <Button type="button" variant="outline" onClick={addPrize} disabled={draft.prizes.length >= 20} data-testid="button-add-wheel-prize">
