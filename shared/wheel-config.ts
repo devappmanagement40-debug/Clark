@@ -42,7 +42,7 @@ export const wheelConfigurationSchema = z.object({
     ids.add(prize.id);
   });
 
-  const activePrizes = configuration.prizes.filter((prize) => prize.active);
+  const winningPrizes = configuration.prizes.filter((prize) => prize.active && prize.probability > 0);
   const inlineImageCharacters = configuration.prizes.reduce(
     (total, prize) => total + (prize.imageUrl?.startsWith("data:image/") ? prize.imageUrl.length : 0),
     0,
@@ -50,16 +50,11 @@ export const wheelConfigurationSchema = z.object({
   if (inlineImageCharacters > 5_000_000) {
     context.addIssue({ code: "custom", path: ["prizes"], message: "Le poids total des images téléversées dépasse la limite autorisée." });
   }
-  if (activePrizes.length === 0) {
-    context.addIssue({ code: "custom", path: ["prizes"], message: "Activez au moins un lot." });
-    return;
-  }
-  const totalProbability = activePrizes.reduce((sum, prize) => sum + prize.probability, 0);
-  if (Math.abs(totalProbability - 100) > 0.01) {
+  if (winningPrizes.length === 0) {
     context.addIssue({
       code: "custom",
       path: ["prizes"],
-      message: `Les probabilités des lots actifs doivent totaliser 100 % (actuellement ${totalProbability.toFixed(2)} %).`,
+      message: "Configurez au moins un lot actif avec un taux supérieur à 0 %.",
     });
   }
 });

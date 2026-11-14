@@ -126,9 +126,9 @@ export default function AdminWheelSettings() {
   };
 
   const validation = wheelConfigurationSchema.safeParse(draft);
-  const activeProbability = draft.prizes
-    .filter((prize) => prize.active)
-    .reduce((sum, prize) => sum + prize.probability, 0);
+  const winnablePrizeCount = draft.prizes
+    .filter((prize) => prize.active && prize.probability > 0)
+    .length;
   const validationMessage = validation.success ? "" : validation.error.issues[0]?.message || "";
 
   if (configQuery.isLoading) {
@@ -188,7 +188,7 @@ export default function AdminWheelSettings() {
           <div className="space-y-1">
             <CardTitle>Lots et probabilités</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Les probabilités des lots actifs doivent totaliser 100 %. Un lot actif réglé à 0 % reste visible sur la roue, mais ne peut jamais être gagné.
+              Les lots à 0 % restent visibles mais ne peuvent jamais être gagnés. Parmi les lots actifs à taux positif, les taux sont comparés entre eux : ils n’ont pas besoin de totaliser 100 %.
             </p>
           </div>
           <Button type="button" variant="outline" onClick={addPrize} disabled={draft.prizes.length >= 20} data-testid="button-add-wheel-prize">
@@ -197,10 +197,8 @@ export default function AdminWheelSettings() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm">
-            <span>Probabilité active totale</span>
-            <strong className={Math.abs(activeProbability - 100) <= 0.01 ? "text-emerald-700" : "text-destructive"}>
-              {activeProbability.toFixed(2)} %
-            </strong>
+            <span>Lots pouvant être gagnés</span>
+            <strong>{winnablePrizeCount} / {draft.prizes.length}</strong>
           </div>
 
           {draft.prizes.map((prize, index) => (
@@ -271,7 +269,7 @@ export default function AdminWheelSettings() {
                     </>
                   )}
                   <label className="block space-y-1.5 text-sm font-medium">
-                    Probabilité en pourcentage
+                    Taux du lot (%)
                     <Input
                       type="number"
                       min={0}

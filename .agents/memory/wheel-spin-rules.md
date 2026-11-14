@@ -9,9 +9,9 @@ Chaque achat payant confirmé crédite un tour à l’acheteur et un tour à son
 
 **How to apply:** conserver l’attribution à l’achat direct et au parrain de premier niveau; ne pas inclure les achats gratuits ni les produits attribués par l’administration.
 
-Les lots, leurs montants et images, les probabilités et le nombre de tours doivent rester configurables dans le panneau administrateur. Conserver les valeurs par défaut du code tant qu’un administrateur ne les a pas modifiées et enregistrées; ne pas préremplir la ligne wheelConfiguration dans la base.
+Les lots, leurs montants et images, les taux de tirage et le nombre de tours doivent rester configurables dans le panneau administrateur. Un taux à 0 % exclut le lot sans le masquer; les taux positifs sont des poids relatifs entre les lots éligibles et n’ont pas à totaliser 100 %. Il faut garder au moins un lot actif à taux positif. Conserver les valeurs par défaut du code tant qu’un administrateur ne les a pas modifiées et enregistrées; ne pas préremplir la ligne wheelConfiguration dans la base.
 
-**Why:** l’utilisateur veut pouvoir gérer tous les paramètres de la roue dans le panneau administrateur et a demandé de laisser les valeurs par défaut.
+**Why:** l’utilisateur veut pouvoir gérer tous les paramètres de la roue dans le panneau administrateur, garder les valeurs par défaut et a précisé que chaque taux positif doit servir à départager les lots gagnables sans total imposé de 100 %.
 
 **How to apply:** garder la configuration par défaut disponible à l’application; enregistrer les changements uniquement à la demande de l’administrateur depuis le panneau.
 
