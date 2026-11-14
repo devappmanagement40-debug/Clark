@@ -39,6 +39,12 @@ Keep deposit provider routing and selectable operator lists configurable per cou
 
 **How to apply:** Filter both the displayed operator choices and server-side payment initiation using the saved provider/country selection. Keep provider secrets in Plesk. Do not invent operator codes for hosted checkouts that do not expose selectable operators.
 
+All countries using manual deposits should share the Côte d’Ivoire manual-deposit journey. If a country's operator catalog is empty, display its active admin-configured payment numbers as selectable options (including Wave in Côte d’Ivoire).
+
+**Why:** the user wants consistent deposit pages and to configure manual receiver numbers for every country through the admin panel.
+
+**How to apply:** Route every manual deposit to the shared manual checkout, derive choices from the country's active methods and payment-number records, and keep automatic provider checkout behavior separate.
+
 For Togo manual TMoney/Togocel deposits, generate the USSD merchant identifier from the active number configured for that operator in the admin payment-number panel; do not hardcode it. Strip the Togo country prefix if the saved number includes it.
 
 **Why:** the user expects changing the admin-configured TMoney number to update the USSD instructions shown on manual deposit pages.

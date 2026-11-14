@@ -8,9 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import { getCountriesForDisplay, parseOperators, type ApiCountry } from "@/lib/countries";
 import { sanitizeDepositDisplayText } from "@/lib/deposit-display";
 import { withCoteDIvoireWaveAmount } from "@/lib/wave-payment-link";
+import { getManualDepositPhoneRule, isValidManualDepositPayerPhone } from "@shared/manual-deposit-rules";
 import type { PaymentNumber } from "@shared/schema";
 import HostedPaymentCheckout from "@/components/hosted-payment-checkout";
 import ManualCountryDeposit from "@/components/manual-country-deposit";
+import { getManualDepositOperatorChoices } from "@/lib/manual-deposit-options";
 import duluxLogo from "@/assets/images/dulux-logo.png";
 
 type Provider = "ashtech" | "sendavapay" | "soleaspay" | "clapay";
@@ -92,19 +94,6 @@ function getHostedManualPaymentMethod(country: string, operatorName: string): "w
   return null;
 }
 
-function canonicalManualOperatorName(country: string, name: string): string {
-  const normalized = name.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
-  if (country === "TG") {
-    if (normalized.includes("tmoney") || normalized.includes("togocel") || normalized.includes("yastogo")) return "Togocel";
-    if (normalized.includes("moov")) return "Moov Africa Togo";
-  }
-  if (country === "BJ") {
-    if (normalized.includes("mtn")) return "MTN Bénin";
-    if (normalized.includes("moov")) return "Moov Africa Bénin";
-  }
-  return name.trim();
-}
-
 export default function RobotPayPage() {
   const [, navigate] = useLocation();
   const { user, refreshUser } = useAuth();
@@ -119,9 +108,6 @@ export default function RobotPayPage() {
   const isSoleaspayFlow = requestedProvider === "soleaspay";
   const isManualFlow = requestedProvider === "manual";
   const isCiManualFlow = isManualFlow && country === "CI";
-  const isTgManualFlow = isManualFlow && country === "TG";
-  const isBjManualFlow = isManualFlow && country === "BJ";
-  const isCountrySpecificManualFlow = isTgManualFlow || isBjManualFlow || isCiManualFlow;
   const forcedProvider = requestedProvider === "ashtech" || requestedProvider === "sendavapay" || requestedProvider === "clapay"
     ? requestedProvider
     : "";
@@ -209,6 +195,9 @@ export default function RobotPayPage() {
   const countryInfo = countries.find(c => c.code === country && c.isActive);
   const currency = countryInfo?.currency || "FCFA";
   const phonePrefix = countryInfo && "phonePrefix" in countryInfo ? countryInfo.phonePrefix : "";
+  const manualPhoneRule = getManualDepositPhoneRule(country);
+  const manualPhoneDigits = manualPhoneRule?.nationalDigits ?? 15;
+  const minimumManualPhoneDigits = manualPhoneRule?.nationalDigits ?? 5;
   const paymentPhone = phone.trim().startsWith("+")
     ? phone.trim()
     : phonePrefix
@@ -312,24 +301,11 @@ export default function RobotPayPage() {
             manualNumber: number,
           })),
           ];
-  const countryManualOperatorChoices: Operator[] = isCountrySpecificManualFlow
-    ? Array.from(new Set(
-        parseOperators(countryInfo?.operators || "[]")
-          .map((name) => canonicalManualOperatorName(country, name)),
-      )).flatMap((name) => {
-        const canonicalName = canonicalManualOperatorName(country, name);
-        const configuredNumbers = manualNumbers.filter(
-          (number) => canonicalManualOperatorName(country, number.operatorName) === canonicalName,
-        );
-        return configuredNumbers.length
-          ? configuredNumbers.map((number) => ({
-              id: `manual-${number.id}`,
-              name,
-              manualNumber: number,
-            }))
-          : [{ id: `${country.toLocaleLowerCase()}-unconfigured-${name}`, name }];
-      })
-    : operators;
+  const countryManualOperatorChoices: Operator[] = getManualDepositOperatorChoices(
+    country,
+    parseOperators(countryInfo?.operators || "[]"),
+    manualNumbers,
+  );
   const loadingOperators = isSoleaspayFlow
     ? soleaspayServicesLoading
      : manualNumbersLoading || providerLoading || sendavaLoading || ashtechLoading || clapayLoading;
@@ -717,74 +693,26 @@ export default function RobotPayPage() {
       });
       return;
     }
-    const expectedManualPhoneDigits = country === "BJ" || country === "CI" ? 10 : 8;
-    if (isCountrySpecificManualFlow && phone.replace(/\D/g, "").length !== expectedManualPhoneDigits) {
-      const countryName = country === "BJ" ? "Bénin" : country === "CI" ? "Côte d’Ivoire" : "Togo";
-      toast({ title: "Numéro invalide", description: `Saisissez les ${expectedManualPhoneDigits} chiffres de votre numéro Mobile Money au ${countryName}.`, variant: "destructive" });
-      return;
-    }
-    if (isCiManualFlow && hostedManualMethod === "wave" && phone.replace(/\D/g, "").length !== 10) {
-      toast({ title: "Numéro invalide", description: "Saisissez les 10 chiffres de votre numéro Wave.", variant: "destructive" });
+    if (isManualFlow && !isValidManualDepositPayerPhone(country, phonePrefix, paymentPhone)) {
+      const details = manualPhoneRule
+        ? `Saisissez les ${manualPhoneRule.nationalDigits} chiffres de votre numéro Mobile Money au ${manualPhoneRule.countryName}.`
+        : "Saisissez un numéro Mobile Money valide, entre 5 et 15 chiffres.";
+      toast({ title: "Numéro invalide", description: details, variant: "destructive" });
       return;
     }
     setStep(1);
   };
 
   if (!amount || !country) return <main className="flex min-h-screen items-center justify-center bg-white p-6 text-center text-[#111827]"><p className="rounded-xl border-2 border-[#111827] bg-white p-5 font-semibold shadow-[0_4px_0_#111827]">Données de dépôt invalides.</p></main>;
-  if (isCountrySpecificManualFlow) {
-    return (
-      <ManualCountryDeposit
-        step={step}
-        amount={amount}
-        currency={currency}
-        countryCode={country}
-        countryName={countryInfo?.name || (country === "BJ" ? "Bénin" : "Togo")}
-        phonePrefix={phonePrefix}
-        phoneDigits={country === "BJ" || country === "CI" ? 10 : 8}
-        operators={countryManualOperatorChoices}
-        isLoadingOperators={loadingOperators}
-        hasOperatorsError={manualNumbersError}
-        selectedOperator={operator}
-        phone={phone}
-        onPhoneChange={(value) => setPhone(value.replace(/\D/g, "").slice(0, country === "BJ" || country === "CI" ? 10 : 8))}
-        onSelectOperator={chooseOperator}
-        onContinue={continueFromOperatorSelection}
-        onBack={() => {
-          if (step === 0) {
-            navigate("/deposit");
-            return;
-          }
-          if (step === 1) {
-            setStep(0);
-            return;
-          }
-          navigate("/my-page");
-        }}
-        onClose={() => navigate("/deposit")}
-        transactionReference={manualTransactionReference}
-        onTransactionReferenceChange={setManualTransactionReference}
-        onCopyPaymentTarget={copyPaymentNumber}
-        onSubmit={() => manualMutation.mutate()}
-        isSubmitting={manualMutation.isPending}
-        status={status}
-        depositId={depositId}
-        secondsRemaining={manualVerificationSecondsLeft}
-        onRefreshStatus={refreshManualPaymentStatus}
-        isRefreshing={manualStatusRefreshing}
-        onViewHistory={() => navigate("/deposits-history?from=deposit")}
-        onHome={() => navigate("/my-page")}
-      />
-    );
-  }
   if (
     isManualFlow &&
-    hostedManualMethod &&
+    hostedManualMethod === "card" &&
     operator?.manualNumber &&
     (step === 1 || (step === 3 && manualSubmitted))
   ) {
     return (
       <HostedPaymentCheckout
-        method={hostedManualMethod}
+        method="card"
         amount={amount}
         currency={currency}
         countryCode={country}
@@ -813,6 +741,52 @@ export default function RobotPayPage() {
           setOperator(null);
           setStep(0);
         }}
+        onViewHistory={() => navigate("/deposits-history?from=deposit")}
+        onHome={() => navigate("/my-page")}
+      />
+    );
+  }
+  if (isManualFlow) {
+    return (
+      <ManualCountryDeposit
+        step={step}
+        amount={amount}
+        currency={currency}
+        countryCode={country}
+        countryName={countryInfo?.name || country}
+        phonePrefix={phonePrefix}
+        phoneDigits={manualPhoneDigits}
+        minimumPhoneDigits={minimumManualPhoneDigits}
+        operators={countryManualOperatorChoices}
+        isLoadingOperators={loadingOperators}
+        hasOperatorsError={manualNumbersError}
+        selectedOperator={operator}
+        phone={phone}
+        onPhoneChange={(value) => setPhone(value.replace(/\D/g, "").slice(0, manualPhoneDigits))}
+        onSelectOperator={chooseOperator}
+        onContinue={continueFromOperatorSelection}
+        onBack={() => {
+          if (step === 0) {
+            navigate("/deposit");
+            return;
+          }
+          if (step === 1) {
+            setStep(0);
+            return;
+          }
+          navigate("/my-page");
+        }}
+        onClose={() => navigate("/deposit")}
+        transactionReference={manualTransactionReference}
+        onTransactionReferenceChange={setManualTransactionReference}
+        onCopyPaymentTarget={copyPaymentNumber}
+        onSubmit={() => manualMutation.mutate()}
+        isSubmitting={manualMutation.isPending}
+        status={status}
+        depositId={depositId}
+        secondsRemaining={manualVerificationSecondsLeft}
+        onRefreshStatus={refreshManualPaymentStatus}
+        isRefreshing={manualStatusRefreshing}
         onViewHistory={() => navigate("/deposits-history?from=deposit")}
         onHome={() => navigate("/my-page")}
       />

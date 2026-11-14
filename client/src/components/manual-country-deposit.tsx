@@ -32,6 +32,7 @@ type ManualCountryDepositProps = {
   countryName: string;
   phonePrefix: string;
   phoneDigits: number;
+  minimumPhoneDigits: number;
   operators: ManualDepositOperator[];
   isLoadingOperators: boolean;
   hasOperatorsError: boolean;
@@ -88,6 +89,7 @@ export default function ManualCountryDeposit({
   countryName,
   phonePrefix,
   phoneDigits,
+  minimumPhoneDigits,
   operators,
   isLoadingOperators,
   hasOperatorsError,
@@ -130,7 +132,16 @@ export default function ManualCountryDeposit({
     countryPhonePrefix: phonePrefix,
   });
   const digits = phone.replace(/\D/g, "");
-  const canContinue = Boolean(!hasOperatorsError && selectedOperator?.manualNumber && target && digits.length === phoneDigits);
+  const canContinue = Boolean(
+    !hasOperatorsError
+    && selectedOperator?.manualNumber
+    && target
+    && digits.length >= minimumPhoneDigits
+    && digits.length <= phoneDigits,
+  );
+  const phoneLengthHint = minimumPhoneDigits === phoneDigits
+    ? `${phoneDigits} chiffres`
+    : `entre ${minimumPhoneDigits} et ${phoneDigits} chiffres`;
   const isApproved = status === "approved";
   const isRejected = status === "rejected";
   const isOrangeTheme = countryCode === "CI";
@@ -293,7 +304,7 @@ export default function ManualCountryDeposit({
                   maxLength={phoneDigits}
                   value={phone}
                   onChange={(event) => onPhoneChange(event.target.value.replace(/\D/g, "").slice(0, phoneDigits))}
-                  placeholder={`Entrez ${phoneDigits} chiffres`}
+                  placeholder={`Entrez ${phoneLengthHint}`}
                   className="min-w-0 flex-1 px-3 text-base text-[#25364b] outline-none placeholder:text-sm placeholder:text-[#98a2b3]"
                 />
               </div>
@@ -301,7 +312,7 @@ export default function ManualCountryDeposit({
 
             <div className="flex gap-2 rounded-lg border border-[#f0dfa0] bg-[#fff7cf] px-3 py-3 text-xs leading-5 text-[#695b20]">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#8a7418]" aria-hidden="true" />
-              <p>Saisissez le numéro Mobile Money de {phoneDigits} chiffres avec lequel vous effectuerez le dépôt.</p>
+              <p>Saisissez votre numéro Mobile Money ({phoneLengthHint}) avec lequel vous effectuerez le dépôt.</p>
             </div>
 
             <button

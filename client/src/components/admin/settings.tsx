@@ -478,7 +478,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
               Cochez les moyens autorisés pour chaque pays. Si plusieurs sont cochés, le client choisira son moyen au moment du dépôt.
               Les interrupteurs de fournisseur plus bas sont des commandes globales d’activation ; ils ne remplacent pas cette configuration par pays.
               Pour les fournisseurs qui proposent un choix d’opérateur, chargez leur liste puis cochez ceux autorisés dans le pays.
-              Les opérateurs manuels et leurs coordonnées se règlent dans la gestion des pays et des numéros.
+              Les opérateurs manuels et leurs coordonnées se règlent dans la gestion des pays et des numéros. Après avoir ajouté un numéro, activez aussi « Paiement manuel » pour ce pays.
               WestPay et InPay restent activables par pays, mais leur paiement hébergé ne fournit pas de liste d’opérateurs à filtrer ici.
               Les URL, identifiants, clés et secrets des fournisseurs restent dans les variables d’environnement Plesk.
             </p>

@@ -438,9 +438,10 @@ export default function GiftCodePage() {
                 <button
                   type="button"
                   className="gift-treasure-action"
-                  onClick={() => {
+                  onClick={async () => {
                     setClaimResult(null);
-                    navigate("/wallet?from=gift-code");
+                    await refreshUser();
+                    navigate("/my-page/home");
                   }}
                 >
                   <span className="inline-flex items-center gap-2"><Coins size={18} aria-hidden="true" /> Solde</span>

@@ -31,6 +31,10 @@ import {
   normalizeCountryCode,
 } from "@shared/country-methods";
 import {
+  getManualDepositPhoneRule,
+  isValidManualDepositPayerPhone,
+} from "@shared/manual-deposit-rules";
+import {
   DEPOSIT_METHOD_IDS,
   parseDepositMethodsByCountry,
   type DepositMethodId,
@@ -1721,26 +1725,25 @@ export async function registerRoutes(
           if (!isDepositMethodConfigured(normalizedDeposit.country, "manual", settings)) {
             return res.status(400).json({ message: "Le paiement manuel n'est pas configuré pour ce pays" });
           }
-          const manualMobileMoneyRules: Record<string, { prefix: string; nationalDigits: number; countryName: string }> = {
-            TG: { prefix: "228", nationalDigits: 8, countryName: "Togo" },
-            BJ: { prefix: "229", nationalDigits: 10, countryName: "Bénin" },
-            CI: { prefix: "225", nationalDigits: 10, countryName: "Côte d’Ivoire" },
-          };
-          const mobileMoneyRule = manualMobileMoneyRules[normalizedDeposit.country.toUpperCase()];
-          if (mobileMoneyRule) {
-            const payerDigits = normalizedDeposit.accountNumber.replace(/\D/g, "");
-            if (
-              payerDigits.length !== mobileMoneyRule.prefix.length + mobileMoneyRule.nationalDigits ||
-              !payerDigits.startsWith(mobileMoneyRule.prefix)
-            ) {
-              return res.status(400).json({
-                message: `Le numéro Mobile Money du ${mobileMoneyRule.countryName} doit contenir le préfixe +${mobileMoneyRule.prefix} et ${mobileMoneyRule.nationalDigits} chiffres`,
-              });
-            }
-            if (!normalizedTransactionReference) {
-              return res.status(400).json({ message: `L'ID de transaction est obligatoire pour un dépôt au ${mobileMoneyRule.countryName}` });
-            }
-          }
+           const mobileMoneyRule = getManualDepositPhoneRule(normalizedDeposit.country);
+           if (!isValidManualDepositPayerPhone(
+             normalizedDeposit.country,
+             depositCountryConfig.phonePrefix,
+             normalizedDeposit.accountNumber,
+           )) {
+             const prefix = (mobileMoneyRule?.prefix || depositCountryConfig.phonePrefix).replace(/\D/g, "");
+             const expectedDigits = mobileMoneyRule
+               ? `${mobileMoneyRule.nationalDigits} chiffres`
+               : "entre 5 et 15 chiffres";
+             return res.status(400).json({
+               message: `Le numéro Mobile Money du ${mobileMoneyRule?.countryName || depositCountryConfig.name} doit contenir le préfixe +${prefix} et ${expectedDigits}`,
+             });
+           }
+           if (!normalizedTransactionReference) {
+             return res.status(400).json({
+               message: `L'ID de transaction est obligatoire pour un dépôt au ${mobileMoneyRule?.countryName || depositCountryConfig.name}`,
+             });
+           }
           if (
             normalizedTransactionReference &&
             (normalizedTransactionReference.length > 120 || /[\r\n]/.test(normalizedTransactionReference))
