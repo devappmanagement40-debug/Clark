@@ -4,6 +4,7 @@ import {
   DEFAULT_WHEEL_CONFIGURATION,
   getPublicWheelConfiguration,
   getWheelDrawWeightTotal,
+  parseWheelConfiguration,
   selectWeightedWheelPrize,
   wheelConfigurationSchema,
 } from "../shared/wheel-config";
@@ -51,6 +52,73 @@ test("weighted draw never selects disabled prizes", () => {
   const selected = selectWeightedWheelPrize(configuration, 0);
   assert.equal(selected.index, 1);
   assert.equal(selected.prize.id, configuration.prizes[1].id);
+});
+
+test("weighted draw never selects prizes configured at exactly one percent", () => {
+  const configuration = {
+    ...DEFAULT_WHEEL_CONFIGURATION,
+    prizes: DEFAULT_WHEEL_CONFIGURATION.prizes.map((prize, index) => (
+      index === 0 ? { ...prize, probability: 1 }
+        : index === 1 ? { ...prize, probability: 2 }
+          : { ...prize, active: false, probability: 0 }
+    )),
+  };
+  const totalWeight = getWheelDrawWeightTotal(configuration);
+
+  assert.equal(wheelConfigurationSchema.safeParse(configuration).success, true);
+  assert.equal(totalWeight, 2 * 100_000_000);
+  assert.equal(selectWeightedWheelPrize(configuration, 0).index, 1);
+  assert.equal(selectWeightedWheelPrize(configuration, totalWeight - 1).index, 1);
+});
+
+test("excludes every rate at or below one percent and keeps rates above it eligible", () => {
+  const configuration = {
+    ...DEFAULT_WHEEL_CONFIGURATION,
+    prizes: DEFAULT_WHEEL_CONFIGURATION.prizes.map((prize, index) => (
+      index === 0 ? { ...prize, probability: 0 }
+        : index === 1 ? { ...prize, probability: 0.99 }
+          : index === 2 ? { ...prize, probability: 1 }
+            : index === 3 ? { ...prize, probability: 1.01 }
+              : index === 4 ? { ...prize, probability: 2 }
+                : { ...prize, active: false, probability: 0 }
+    )),
+  };
+  const totalWeight = getWheelDrawWeightTotal(configuration);
+
+  assert.equal(wheelConfigurationSchema.safeParse(configuration).success, true);
+  assert.equal(totalWeight, Math.round(1.01 * 100_000_000) + 2 * 100_000_000);
+  assert.equal(selectWeightedWheelPrize(configuration, 0).index, 3);
+  assert.equal(selectWeightedWheelPrize(configuration, Math.round(1.01 * 100_000_000)).index, 4);
+  assert.equal(selectWeightedWheelPrize(configuration, totalWeight - 1).index, 4);
+});
+
+test("rejects a configuration when the only active prizes are at one percent", () => {
+  const configuration = {
+    ...DEFAULT_WHEEL_CONFIGURATION,
+    prizes: DEFAULT_WHEEL_CONFIGURATION.prizes.map((prize, index) => (
+      index === 0 ? { ...prize, probability: 1 } : { ...prize, active: false, probability: 0 }
+    )),
+  };
+
+  assert.equal(wheelConfigurationSchema.safeParse(configuration).success, false);
+});
+
+test("loads an existing configuration with no winnable prizes so an admin can correct it", () => {
+  const configuration = {
+    ...DEFAULT_WHEEL_CONFIGURATION,
+    prizes: DEFAULT_WHEEL_CONFIGURATION.prizes.map((prize) => ({ ...prize, probability: 1 })),
+  };
+
+  assert.equal(wheelConfigurationSchema.safeParse(configuration).success, false);
+  assert.deepEqual(
+    parseWheelConfiguration(JSON.stringify(configuration)),
+    configuration,
+  );
+  assert.equal(getWheelDrawWeightTotal(configuration), 0);
+  assert.throws(
+    () => selectWeightedWheelPrize(configuration, 0),
+    /Aucun lot gagnable/,
+  );
 });
 
 test("weighted draw maps the full configured range to the last eligible prize", () => {

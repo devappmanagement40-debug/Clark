@@ -121,13 +121,13 @@ export default function AdminWheelSettings() {
   const togglePrize = (prize: WheelPrizeConfiguration) => {
     updatePrize(prize.id, {
       active: !prize.active,
-      probability: prize.active ? 0 : Math.max(0.01, prize.probability),
+      probability: prize.active ? 0 : Math.max(2, prize.probability),
     });
   };
 
   const validation = wheelConfigurationSchema.safeParse(draft);
   const winnablePrizeCount = draft.prizes
-    .filter((prize) => prize.active && prize.probability > 0)
+    .filter((prize) => prize.active && prize.probability > 1)
     .length;
   const validationMessage = validation.success ? "" : validation.error.issues[0]?.message || "";
 
@@ -188,7 +188,7 @@ export default function AdminWheelSettings() {
           <div className="space-y-1">
             <CardTitle>Lots et probabilités</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Les lots à 0 % restent visibles mais ne peuvent jamais être gagnés. Parmi les lots actifs à taux positif, les taux sont comparés entre eux : ils n’ont pas besoin de totaliser 100 %.
+              Les lots à 1 % ou moins restent visibles mais ne peuvent jamais être gagnés. Seuls les lots au-dessus de 1 % peuvent être tirés ; leurs taux sont comparés entre eux et n’ont pas besoin de totaliser 100 %.
             </p>
           </div>
           <Button type="button" variant="outline" onClick={addPrize} disabled={draft.prizes.length >= 20} data-testid="button-add-wheel-prize">

@@ -29,7 +29,7 @@ const wheelPrizeSchema = z.object({
   }
 });
 
-export const wheelConfigurationSchema = z.object({
+const wheelConfigurationStructureSchema = z.object({
   buyerSpinsPerPurchase: z.number().int().min(0).max(100),
   referralSpinsPerPurchase: z.number().int().min(0).max(100),
   prizes: z.array(wheelPrizeSchema).min(1).max(20),
@@ -42,7 +42,6 @@ export const wheelConfigurationSchema = z.object({
     ids.add(prize.id);
   });
 
-  const winningPrizes = configuration.prizes.filter((prize) => prize.active && prize.probability > 0);
   const inlineImageCharacters = configuration.prizes.reduce(
     (total, prize) => total + (prize.imageUrl?.startsWith("data:image/") ? prize.imageUrl.length : 0),
     0,
@@ -50,11 +49,14 @@ export const wheelConfigurationSchema = z.object({
   if (inlineImageCharacters > 5_000_000) {
     context.addIssue({ code: "custom", path: ["prizes"], message: "Le poids total des images téléversées dépasse la limite autorisée." });
   }
-  if (winningPrizes.length === 0) {
+});
+
+export const wheelConfigurationSchema = wheelConfigurationStructureSchema.superRefine((configuration, context) => {
+  if (!configuration.prizes.some(isWheelPrizeWinnable)) {
     context.addIssue({
       code: "custom",
       path: ["prizes"],
-      message: "Configurez au moins un lot actif avec un taux supérieur à 0 %.",
+      message: "Configurez au moins un lot actif avec un taux supérieur à 1 %.",
     });
   }
 });
@@ -88,9 +90,13 @@ export const DEFAULT_WHEEL_CONFIGURATION: WheelConfiguration = {
   ],
 };
 
+function isWheelPrizeWinnable(prize: WheelPrizeConfiguration): boolean {
+  return prize.active && prize.probability > 1;
+}
+
 export function parseWheelConfiguration(value: string | null | undefined): WheelConfiguration {
   if (!value) return DEFAULT_WHEEL_CONFIGURATION;
-  return wheelConfigurationSchema.parse(JSON.parse(value));
+  return wheelConfigurationStructureSchema.parse(JSON.parse(value));
 }
 
 export function displayWheelPrize(
@@ -121,7 +127,7 @@ const WHEEL_PROBABILITY_SCALE = 100_000_000;
 
 export function getWheelDrawWeightTotal(configuration: WheelConfiguration): number {
   return configuration.prizes.reduce((total, prize) => (
-    total + (prize.active && prize.probability > 0
+    total + (isWheelPrizeWinnable(prize)
       ? Math.max(1, Math.round(prize.probability * WHEEL_PROBABILITY_SCALE))
       : 0)
   ), 0);
@@ -135,7 +141,7 @@ export function selectWeightedWheelPrize(
     .map((prize, index) => ({
       prize,
       index,
-      weight: prize.active && prize.probability > 0
+      weight: isWheelPrizeWinnable(prize)
         ? Math.max(1, Math.round(prize.probability * WHEEL_PROBABILITY_SCALE))
         : 0,
     }))
