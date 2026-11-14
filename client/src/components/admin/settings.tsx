@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient, FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS } from "@/lib/queryClient";
 import { Loader2, Save, Link, Clock, Users, Zap, RefreshCw } from "lucide-react";
+import AdminClapayCountryBalances from "@/components/admin/clapay-country-balances";
 import {
   DEFAULT_DEPOSIT_COMMISSION_LEVEL1,
   DEFAULT_DEPOSIT_COMMISSION_LEVEL2,
@@ -35,6 +36,7 @@ import {
 } from "@shared/platform-settings";
 import {
   deriveClapayPayoutCountries,
+  deriveClapayRoutedCountries,
 } from "@shared/clapay-payout-countries";
 import {
   DEPOSIT_METHOD_IDS,
@@ -47,17 +49,6 @@ import {
 } from "@shared/deposit-operator-routing";
 
 type AdminCountry = { code: string; name: string; currency?: string; isActive: boolean };
-type ClapayCountryBalance = {
-  country: string;
-  name: string;
-  currency: string;
-  balance: number;
-  deposit: number;
-  withdrawal: number;
-  potentialBalance: number;
-  possibleWithdrawal: number;
-  update?: string;
-};
 type DepositOperatorOption = { id: string; name: string; requiresOtp?: boolean };
 type DepositOperatorCatalog = {
   operators: DepositOperatorOption[];
@@ -230,7 +221,6 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
     Record<string, DepositOperatorCatalog>
   >({});
   const [loadingOperatorCatalogs, setLoadingOperatorCatalogs] = useState<Record<string, boolean>>({});
-  const [clapayBalances, setClapayBalances] = useState<Record<string, ClapayCountryBalance>>({});
 
   const loadDepositOperatorCatalog = async (country: string, provider: DepositOperatorProviderId) => {
     const normalizedCountry = country.trim().toUpperCase();
@@ -320,6 +310,10 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       clapayEnabled,
     ),
     [countries, depositMethodsByCountry, clapayEnabled],
+  );
+  const clapayBalanceCountries = useMemo(
+    () => deriveClapayRoutedCountries(countries, depositMethodsByCountry),
+    [countries, depositMethodsByCountry],
   );
 
   useEffect(() => {
@@ -445,21 +439,6 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
     },
     onError: (error: any) => {
       toast({ title: "Solde InPay indisponible", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const clapayBalanceMutation = useMutation({
-    mutationFn: async (country: string) => {
-      const response = await apiRequest("GET", `/api/admin/clapay/balance/${country}`);
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Solde Clapay indisponible");
-      return data as ClapayCountryBalance;
-    },
-    onSuccess: (balance) => {
-      setClapayBalances((current) => ({ ...current, [balance.country]: balance }));
-    },
-    onError: (error: any) => {
-      toast({ title: "Solde Clapay indisponible", description: error.message, variant: "destructive" });
     },
   });
 

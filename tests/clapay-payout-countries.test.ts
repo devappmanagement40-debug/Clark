@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   DEFAULT_CLAPAY_PAYOUT_COUNTRIES,
   deriveClapayPayoutCountries,
+  deriveClapayRoutedCountries,
   parseClapayPayoutCountries,
 } from "../shared/clapay-payout-countries";
 
@@ -31,6 +32,20 @@ test("does not derive payout countries while Clapay is globally disabled", () =>
       false,
     ),
     [],
+  );
+});
+
+test("keeps routed countries available for balance checks while payouts are disabled", () => {
+  assert.deepEqual(
+    deriveClapayRoutedCountries(
+      [
+        { code: "CI", isActive: true },
+        { code: "BJ", isActive: true },
+        { code: "BF", isActive: false },
+      ],
+      { ci: ["clapay"], BJ: ["manual"], BF: ["clapay"] },
+    ),
+    ["CI"],
   );
 });
 

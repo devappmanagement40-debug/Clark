@@ -5,21 +5,33 @@ export type ClapayPayoutCountry = {
   isActive: boolean;
 };
 
+export function deriveClapayRoutedCountries(
+  countries: ClapayPayoutCountry[],
+  depositRouting: Record<string, string[]>,
+): string[] {
+  const normalizedRouting = new Map(
+    Object.entries(depositRouting).map(([code, methods]) => [
+      code.trim().toUpperCase(),
+      methods,
+    ]),
+  );
+  return countries
+    .filter((country) => {
+      const code = country.code.trim().toUpperCase();
+      return country.isActive
+        && /^[A-Z]{2}$/.test(code)
+        && (normalizedRouting.get(code) || []).includes("clapay");
+    })
+    .map((country) => country.code.trim().toUpperCase());
+}
+
 export function deriveClapayPayoutCountries(
   countries: ClapayPayoutCountry[],
   depositRouting: Record<string, string[]>,
   clapayEnabled: boolean,
 ): string[] {
   if (!clapayEnabled) return [];
-
-  return countries
-    .filter((country) => {
-      const code = country.code.trim().toUpperCase();
-      return country.isActive
-        && /^[A-Z]{2}$/.test(code)
-        && (depositRouting[code] || []).includes("clapay");
-    })
-    .map((country) => country.code.trim().toUpperCase());
+  return deriveClapayRoutedCountries(countries, depositRouting);
 }
 
 export function parseClapayPayoutCountries(raw: string | undefined): string[] {
