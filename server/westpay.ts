@@ -173,10 +173,11 @@ export async function transfer(params: {
  * WestPay sends HMAC-SHA256 of the raw JSON body in X-RobotPay-Signature header.
  */
 export function verifyWebhookSignature(
-  rawBody: Buffer,
+  rawBody: Buffer | undefined,
   signature: string,
   secret: string
 ): boolean {
+  if (!rawBody || !signature || !secret) return false;
   const received = signature
     .trim()
     .replace(/^["']|["']$/g, "")

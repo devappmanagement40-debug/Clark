@@ -2857,19 +2857,23 @@ export async function registerRoutes(
   app.get("/api/westpay/callback", async (req, res) => {
     try {
       const { depositId, status, ref } = req.query as Record<string, string>;
-      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      const baseUrl = getPublicBaseUrl(req);
       if (!depositId) return res.redirect(`${baseUrl}/deposit?wp_status=error`);
       const deposit = await storage.getDeposit(parseInt(depositId));
       if (!deposit) return res.redirect(`${baseUrl}/deposit?wp_status=error`);
       // Persist the WestPay transaction reference; webhook will approve
-      if (ref && (deposit.status === "pending" || deposit.status === "processing")) {
+        if (
+          ref &&
+          deposit.paymentMethod === "WestPay" &&
+          (deposit.status === "pending" || deposit.status === "processing")
+        ) {
         await storage.updateDeposit(deposit.id, { westpayReference: ref });
       }
       const wpStatus = status === "success" ? "success" : "pending";
       res.redirect(`${baseUrl}/deposit?wp_status=${wpStatus}&wp_depositId=${depositId}`);
     } catch (err: any) {
       console.error("[westpay callback] error:", err);
-      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      const baseUrl = getPublicBaseUrl(req);
       res.redirect(`${baseUrl}/deposit?wp_status=error`);
     }
   });
@@ -2887,11 +2891,13 @@ export async function registerRoutes(
         const sig = (req.headers["x-robotpay-signature"] as string) || "";
         // req.rawBody is captured by the global express.json verify callback
         const rawBuf = (req as any).rawBody as Buffer | undefined;
-        if (secret && rawBuf && !westpayVerifySignature(rawBuf, sig, secret)) {
+        if (!westpayVerifySignature(rawBuf, sig, secret)) {
           console.warn("[westpay webhook] Signature invalide");
           return res.status(401).json({ message: "Signature invalide" });
         }
-        const payload = req.body;
+        const payload = req.body && typeof req.body === "object" && !Array.isArray(req.body)
+          ? req.body
+          : {};
         const { event, txId, status } = payload;
         const transactionReference =
           txId || payload.transactionId || payload.reference || payload.ref;
@@ -2901,18 +2907,24 @@ export async function registerRoutes(
           console.warn(`[westpay webhook] Aucun dépôt pour référence: ${transactionReference}`);
           return res.json({ received: true });
         }
+        if (deposit.paymentMethod !== "WestPay") {
+          console.warn(`[westpay webhook] Dépôt ${deposit.id} non associé à WestPay`);
+          return res.status(409).json({ message: "Dépôt non associé à WestPay" });
+        }
         if (deposit.status === "approved" || deposit.status === "rejected") {
           return res.json({ received: true });
         }
-        if (event === "payment.confirmed" || status === "confirmed") {
+        const normalizedEvent = String(event || "").toLowerCase();
+        const normalizedStatus = String(status || "").toLowerCase();
+        if (normalizedEvent === "payment.confirmed" || normalizedStatus === "confirmed") {
           const claimedDeposit = await storage.claimDepositApproval(deposit.id);
           if (claimedDeposit) await creditApprovedDeposit(claimedDeposit);
         } else if (
-          event === "payment.failed" ||
-          event === "payment.expired" ||
-          status === "failed" ||
-          status === "expired" ||
-          status === "cancelled"
+          normalizedEvent === "payment.failed" ||
+          normalizedEvent === "payment.expired" ||
+          normalizedStatus === "failed" ||
+          normalizedStatus === "expired" ||
+          normalizedStatus === "cancelled"
         ) {
           await storage.updateDeposit(deposit.id, { status: "rejected", processedAt: new Date() });
         }
