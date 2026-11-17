@@ -12,7 +12,7 @@
   position: relative;
   isolation: isolate;
   min-height: 100dvh;
-  padding: 0 0 calc(62px + env(safe-area-inset-bottom));
+  padding: 0;
   background: #f1f2f6 !important;
   color: var(--cp-ink);
   font-family: "DM Sans", sans-serif;
