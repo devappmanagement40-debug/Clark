@@ -1075,13 +1075,12 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
               </FormItem>
             )} />
             <div className="rounded-xl bg-orange-50 border border-orange-100 p-3 text-xs text-orange-700 space-y-1">
-              <p className="font-semibold">Variables requises dans Plesk :</p>
-              <p>• <code className="bg-orange-100 px-1 rounded">WESTPAY_API_BASE_URL</code> — URL de l’API marchande</p>
+              <p className="font-semibold">Variables Plesk pour les dépôts :</p>
               <p>• <code className="bg-orange-100 px-1 rounded">WESTPAY_CHECKOUT_BASE_URL</code> — URL de la page de paiement hébergée</p>
               <p>• <code className="bg-orange-100 px-1 rounded">WESTPAY_MERCHANT_SLUG</code> — votre identifiant marchand WestPay</p>
               <p>• <code className="bg-orange-100 px-1 rounded">WESTPAY_WEBHOOK_SECRET</code> — vérification des confirmations de paiement</p>
-              <p>• Pour les retraits : <code className="bg-orange-100 px-1 rounded">WESTPAY_API_KEY_&lt;PAYS&gt;</code></p>
               <p>• URL webhook à configurer dans votre compte WestPay : <code className="bg-orange-100 px-1 rounded">/api/webhooks/westpay</code></p>
+              <p><code className="bg-orange-100 px-1 rounded">PUBLIC_APP_URL</code> doit pointer vers votre domaine HTTPS public pour les retours de paiement.</p>
               <p className="font-semibold text-red-600 mt-1">Ne saisissez jamais ces valeurs dans ce formulaire ou en base de données.</p>
             </div>
           </CardContent>

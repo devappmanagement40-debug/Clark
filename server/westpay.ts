@@ -78,8 +78,7 @@ export function getMerchantSlug(): string {
   return process.env.WESTPAY_MERCHANT_SLUG || "";
 }
 
-export function validateWestpayConfig(): void {
-  getWestpayApiBaseUrl();
+export function validateWestpayDepositConfig(): void {
   getWestpayCheckoutBaseUrl();
   if (!getMerchantSlug()) throw new Error("WESTPAY_MERCHANT_SLUG doit être configurée dans Plesk");
   if (!process.env.WESTPAY_WEBHOOK_SECRET) throw new Error("WESTPAY_WEBHOOK_SECRET doit être configurée dans Plesk");

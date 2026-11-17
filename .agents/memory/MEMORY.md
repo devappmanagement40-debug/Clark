@@ -1,7 +1,7 @@
 - [CATL brand transition](catl-brand-transition.md) — Site is DULUX DT; replace CATL image placements with Dulux assets, while retaining non-image copy and colors.
 - [New application transition](new-application-transition.md) — Treat the rebuild as a fresh application; preserve Supabase-managed schemas and confirm before further destructive changes.
 - [Deposit checkout routing](deposit-checkout-routing.md) — Keep aggregator choice internal; manual number deposits stay pending through the countdown until admin review.
-- [WestPay Integration](westpay-integration.md) — Redirect-based deposit flow + HMAC webhook; per-country API keys for withdrawals; secrets only (never in code/DB).
+- [WestPay Integration](westpay-integration.md) — Keep WestPay deposits configurable by country; user chose deposits only, not automatic payouts.
 - [SendavaPay integration](sendavapay-integration.md) — Payin deposit flow: backend creates+initiates, user phone auto-used, OTP/redirect handled, webhook HMAC verified.
 - [External database target](imported-database-setup.md) — Use the configured external PostgreSQL only, never Replit DB, and verify live server identity rather than trusting the secret name.
 - [Demo OTP registration](demo-otp-registration.md) — User chose changing, auto-filled demonstration codes without SMS; keep the demo limited to development.

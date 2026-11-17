@@ -91,7 +91,7 @@ import {
   verifyWebhookSignature as westpayVerifySignature,
   transfer as westpayTransfer,
   formatMsisdn as westpayFormatMsisdn,
-  validateWestpayConfig,
+  validateWestpayDepositConfig,
 } from "./westpay";
 import {
   createPayin as inpayCreatePayin,
@@ -1863,7 +1863,7 @@ export async function registerRoutes(
           return res.status(400).json({ message: "WestPay n'est pas activé pour ce pays", westpay: true });
         }
         try {
-          validateWestpayConfig();
+          validateWestpayDepositConfig();
         } catch (error: any) {
           return res.status(503).json({ message: error.message || "WestPay n'est pas configuré dans Plesk", westpay: true });
         }
@@ -2862,11 +2862,11 @@ export async function registerRoutes(
       const deposit = await storage.getDeposit(parseInt(depositId));
       if (!deposit) return res.redirect(`${baseUrl}/deposit?wp_status=error`);
       // Persist the WestPay transaction reference; webhook will approve
-        if (
-          ref &&
-          deposit.paymentMethod === "WestPay" &&
-          (deposit.status === "pending" || deposit.status === "processing")
-        ) {
+      if (
+        ref &&
+        deposit.paymentMethod === "WestPay" &&
+        (deposit.status === "pending" || deposit.status === "processing")
+      ) {
         await storage.updateDeposit(deposit.id, { westpayReference: ref });
       }
       const wpStatus = status === "success" ? "success" : "pending";
