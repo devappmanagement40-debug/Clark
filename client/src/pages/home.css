@@ -12,7 +12,7 @@
   position: relative;
   isolation: isolate;
   min-height: 100dvh;
-  padding: 0 0 calc(78px + env(safe-area-inset-bottom));
+  padding: 0 0 calc(62px + env(safe-area-inset-bottom));
   background: #f1f2f6 !important;
   color: var(--cp-ink);
   font-family: "DM Sans", sans-serif;
@@ -29,7 +29,7 @@ body:has(.cp-home) { background: #f1f2f6 !important; }
   z-index: 1;
   width: min(100%, 520px);
   margin: 0 auto;
-  padding: 0 0 18px;
+  padding: 0;
   background: #f1f2f6;
 }
 
