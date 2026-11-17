@@ -10,13 +10,9 @@
   --cp-paper: #fff;
   --cp-line: #e7ebf2;
   position: relative;
-  display: flex;
-  height: 100dvh;
-  min-height: 0;
-  flex-direction: column;
-  overflow: hidden;
   isolation: isolate;
-  padding: 0;
+  min-height: 100dvh;
+  padding: 0 0 calc(78px + env(safe-area-inset-bottom));
   background: #f1f2f6 !important;
   color: var(--cp-ink);
   font-family: "DM Sans", sans-serif;
@@ -31,15 +27,9 @@ body:has(.cp-home) { background: #f1f2f6 !important; }
 .cp-shell {
   position: relative;
   z-index: 1;
-  display: flex;
   width: min(100%, 520px);
-  height: 100%;
-  min-height: 0;
-  flex: 1 1 auto;
-  flex-direction: column;
   margin: 0 auto;
-  overflow: hidden;
-  padding: 0;
+  padding: 0 0 18px;
   background: #f1f2f6;
 }
 
@@ -343,18 +333,8 @@ body:has(.cp-home) { background: #f1f2f6 !important; }
 
 .cp-products {
   display: grid;
-  min-height: 0;
-  flex: 1 1 auto;
-  align-content: start;
-  grid-auto-rows: max-content;
   gap: 12px;
-  margin: 0 18px;
-  padding-bottom: calc(72px + env(safe-area-inset-bottom));
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
+  margin: 0 18px 14px;
 }
 
 .cp-products-state {
