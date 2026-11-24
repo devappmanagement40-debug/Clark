@@ -17,6 +17,12 @@ The detailed pay-in unified-order specification uses `out_trade_no` and requires
 
 Orange OTP verification is documented at `/inpays/payin/verifyotp` with required `merchantid`, `out_trade_no`, `timestamp`, `otp`, and `sign`. The excerpt does not establish whether this is called after unified-order creation or replaces the optional `otp` field there.
 
+The user confirmed InPay is available only for Côte d’Ivoire in this product.
+
+**Why:** Enabling the provider for other countries would expose payment methods the merchant does not offer.
+
+**How to apply:** Configure and enable InPay only for CI, even though the provider documentation and generic country maps list other countries.
+
 **Why:** Omitting the required operator method prevents a complete pay-in request even when the signature is valid; assuming the Orange OTP sequence could send verification at the wrong stage.
 
 **How to apply:** Preserve the exact signing rules and acknowledgement text. Verify signatures for each configured merchant when callbacks omit `merchantid`; implement reversal and secondary-validation handling only against the provider's documented semantics. Send the selected operator's numeric `method` in pay-in requests, and confirm the Orange OTP sequence before wiring its user flow.
