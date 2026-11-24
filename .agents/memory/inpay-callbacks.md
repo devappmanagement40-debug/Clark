@@ -13,4 +13,8 @@ The provider documentation confirms form-urlencoded callbacks, lowercase `succes
 
 **Why:** These provider requirements are not recoverable from the application code and affect callback compatibility and final transaction handling.
 
-**How to apply:** Preserve the exact signing rules and acknowledgement text. Verify signatures for each configured merchant when callbacks omit `merchantid`; implement reversal and secondary-validation handling only against the provider's documented semantics. The pay-in creation excerpt names its merchant reference `de_no`, while its callbacks/query and payout endpoints use `out_trade_no`; confirm that discrepancy with InPay before changing the outgoing pay-in field.
+The detailed pay-in unified-order specification uses `out_trade_no` and requires numeric `method`; `otp` is optional in the schema but needed for Orange in most countries. It also documents a two-minute validity window for Wave recharge links. The provider's earlier translated parameter summary called the merchant order reference `de_no`, so prefer the detailed endpoint schema and confirm if that older version is still in use.
+
+**Why:** Omitting the required operator method prevents a complete pay-in request even when the signature is valid.
+
+**How to apply:** Preserve the exact signing rules and acknowledgement text. Verify signatures for each configured merchant when callbacks omit `merchantid`; implement reversal and secondary-validation handling only against the provider's documented semantics. Send the selected operator's numeric `method` in pay-in requests, and only add Orange OTP collection after confirming the provider's OTP issuance/verification flow.
