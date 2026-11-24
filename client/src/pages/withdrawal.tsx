@@ -10,7 +10,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { getCountryByCode } from "@/lib/countries";
+import type { ApiCountry } from "@/lib/countries";
 import {
   DEFAULT_MAX_WITHDRAWALS_PER_DAY,
   DEFAULT_MINIMUM_WITHDRAWAL,
@@ -45,7 +45,16 @@ export default function WithdrawalPage() {
   const [, navigate] = useLocation();
   const withdrawalBackDestination = getWithdrawalBackPath(window.location.search);
 
-  const countryInfo = user ? getCountryByCode(user.country) : null;
+  const {
+    data: activeCountries,
+    isLoading: countriesLoading,
+    isError: countriesError,
+  } = useQuery<ApiCountry[]>({
+    queryKey: ["/api/countries"],
+  });
+  const countryInfo = activeCountries?.find(
+    (country) => country.code.toUpperCase() === user?.country.toUpperCase() && country.isActive,
+  );
   const configuredCurrency = countryInfo?.currency || "XOF";
   const currency = configuredCurrency === "FCFA" ? "XOF" : configuredCurrency;
 
@@ -91,6 +100,8 @@ export default function WithdrawalPage() {
     queryKey: ["/api/wallets"],
     refetchOnWindowFocus: true,
   });
+  const activeCountryCodes = new Set((activeCountries || []).map((country) => country.code.toUpperCase()));
+  const availableWallets = wallets.filter((wallet) => activeCountryCodes.has(wallet.country.toUpperCase()));
 
   const { data: availableBalance } = useQuery<{ availableBalance: string }>({
     queryKey: ["/api/withdrawals/available"],
@@ -101,19 +112,19 @@ export default function WithdrawalPage() {
 
   useEffect(() => {
     const savedWalletId = localStorage.getItem("selectedWalletId");
-    if (savedWalletId && wallets.length > 0) {
-      const wallet = wallets.find((item) => item.id === parseInt(savedWalletId, 10));
+    if (savedWalletId && availableWallets.length > 0) {
+      const wallet = availableWallets.find((item) => item.id === parseInt(savedWalletId, 10));
       if (wallet) setSelectedWallet(wallet);
       localStorage.removeItem("selectedWalletId");
     }
-  }, [wallets]);
+  }, [availableWallets]);
 
   useEffect(() => {
-    if (!selectedWallet && wallets.length > 0) {
-      const defaultWallet = wallets.find((wallet) => wallet.isDefault);
+    if (!selectedWallet && availableWallets.length > 0) {
+      const defaultWallet = availableWallets.find((wallet) => wallet.isDefault);
       if (defaultWallet) setSelectedWallet(defaultWallet);
     }
-  }, [wallets, selectedWallet]);
+  }, [availableWallets, selectedWallet]);
 
   const withdrawMutation = useMutation({
     mutationFn: async (data: { amount: number; walletId: number }) => {
@@ -193,7 +204,7 @@ export default function WithdrawalPage() {
   if (!user) return null;
 
   const balance = parseFloat(availableBalance?.availableBalance || "0");
-  const hasWallets = wallets.length > 0;
+  const hasWallets = availableWallets.length > 0;
 
   return (
     <main className="withdraw-page">
@@ -880,11 +891,25 @@ export default function WithdrawalPage() {
         }
       `}</style>
 
-      {walletsLoading ? (
+      {walletsLoading || countriesLoading ? (
         <div className="withdraw-loading" aria-label="Chargement">
           <div className="withdraw-skeleton" aria-hidden="true">
             <div className="withdraw-skeleton-bar withdraw-skeleton-bar--hero" />
             <div className="withdraw-skeleton-bar withdraw-skeleton-bar--tall" />
+          </div>
+        </div>
+      ) : countriesError || !countryInfo ? (
+        <div className="withdraw-shell">
+          <header className="withdraw-header">
+            <Link href={withdrawalBackDestination} className="withdraw-icon-link withdraw-back-link" data-testid="button-back" aria-label="Retour">
+              <ArrowLeft size={20} aria-hidden="true" />
+            </Link>
+            <h1 className="withdraw-title">Retrait</h1>
+          </header>
+          <div className="withdraw-content">
+            <p className="withdraw-notice" role="alert">
+              Les retraits ne sont pas disponibles dans votre pays actuellement.
+            </p>
           </div>
         </div>
       ) : (

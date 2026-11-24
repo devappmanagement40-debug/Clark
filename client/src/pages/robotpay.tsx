@@ -558,7 +558,7 @@ export default function RobotPayPage() {
       ashtechMutation.mutate(ashtechOtp.trim());
       return;
     }
-    const res = await apiRequest("POST", "/api/sendavapay/submit-otp", { otpToken, otp });
+    const res = await apiRequest("POST", "/api/sendavapay/submit-otp", { otpToken, otp, depositId });
     if (!res.ok) { toast({ title: "OTP invalide", variant: "destructive" }); return; }
     setStep(2); setStatus("processing");
   };

@@ -9,11 +9,11 @@ When a country should disappear from signup or the public country selector, deac
 
 **How to apply:** Check account counts and the login path before a country change. Preserve inactive entries for history, and ensure new registration accepts only active countries.
 
-Public pickers may use the seeded country list only when `/api/countries` fails; a successful empty response must stay empty. Server-side active-country validation remains authoritative, so a display fallback does not make registration or payments available during an API outage.
+The user requires disabled countries to disappear from registration, login, deposit, and withdrawal flows, and has chosen to block login for accounts assigned to a disabled country. If the active-country API fails, public selectors must fail closed rather than show a static list that may include disabled countries.
 
-**Why:** A Plesk API 500 hid every country option even though the client bundle and seeded country data were valid.
+**Why:** The static fallback cannot know current admin country settings and could expose a country that was explicitly disabled.
 
-**How to apply:** Use the fallback only for failed requests, label it as temporary, and keep inactive-country enforcement on the server.
+**How to apply:** Use only the server's active-country list in public selectors, reject login and transaction requests for inactive countries, and show an unavailable state if that list cannot be loaded. Do not delete the country row or force logout existing sessions unless asked.
 
 The user's current active country list is exactly Togo (TG), Côte d'Ivoire (CI), Burkina Faso (BF), Niger (NE), and Bénin (BJ). Keep other catalog rows inactive rather than deleting them. Bénin uses XOF and phone prefix 229; its deposit operators and withdrawal methods are MTN Bénin and Moov Africa Bénin.
 

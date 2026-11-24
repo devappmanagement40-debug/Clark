@@ -43,7 +43,7 @@ export default function LoginPage() {
   });
 
   const { data: apiCountries, isLoading: countriesLoading } = useQuery<ApiCountry[]>({
-    queryKey: ["/api/login/countries"],
+    queryKey: ["/api/countries"],
     enabled: !isUiPreview,
   });
 
@@ -57,7 +57,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!apiCountries || apiCountries.length === 0) return;
-    const availableCountries = apiCountries.filter(ac => isAuthCountryAllowed(ac.code));
+    const availableCountries = apiCountries.filter(ac => ac.isActive && isAuthCountryAllowed(ac.code));
     const isValid = availableCountries.some(ac => ac.code === selectedCountry);
     if (!isValid) {
       const first = availableCountries.find(country => country.isActive) || availableCountries[0];
@@ -68,11 +68,12 @@ export default function LoginPage() {
   const countryData = (() => {
     if (apiCountries !== undefined) {
       const c = apiCountries.find(ac =>
-        ac.code === selectedCountry && isAuthCountryAllowed(ac.code),
+        ac.code === selectedCountry && ac.isActive && isAuthCountryAllowed(ac.code),
       );
       if (c) return { phonePrefix: c.phonePrefix, name: c.name };
       return null;
     }
+    if (!isUiPreview) return null;
     const f = FALLBACK_COUNTRIES.find(fc =>
       fc.code === selectedCountry && isAuthCountryAllowed(fc.code),
     );
@@ -142,7 +143,7 @@ export default function LoginPage() {
                {form.formState.errors.password && <p id="login-password-error" role="alert" className="auth-error">{form.formState.errors.password.message}</p>}
             </div>
 
-            <button type="submit" disabled={isLoading || isUiPreview} className="auth-submit" data-testid="button-login">
+             <button type="submit" disabled={isLoading || isUiPreview || !countryData} className="auth-submit" data-testid="button-login">
               {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Se connecter"}
             </button>
              <button type="button" className="auth-switch" onClick={() => navigate("/register")} data-testid="link-register">Créer un compte</button>
@@ -150,7 +151,7 @@ export default function LoginPage() {
         </section>
       </div>
 
-      <CountrySelector selectedCountryCode={selectedCountry} open={countryModalOpen} onClose={() => setCountryModalOpen(false)} onSelect={(code) => form.setValue("country", code, { shouldValidate: true })} excludedCountryCodes={AUTH_HIDDEN_COUNTRY_CODES} includeInactive />
+      <CountrySelector selectedCountryCode={selectedCountry} open={countryModalOpen} onClose={() => setCountryModalOpen(false)} onSelect={(code) => form.setValue("country", code, { shouldValidate: true })} excludedCountryCodes={AUTH_HIDDEN_COUNTRY_CODES} />
     </main>
   );
 }

@@ -910,11 +910,20 @@ export async function registerRoutes(
     if (checkBruteForce(req, res)) return;
     try {
       const data = loginSchema.parse(req.body);
-      
-      let user = await storage.getUserByPhone(data.phone, data.country);
+      const activeCountries = await storage.getActiveCountries();
+      const activeCountryCodes = new Set(
+        activeCountries.map((country) => country.code.trim().toUpperCase()),
+      );
+      const requestedCountry = data.country.trim().toUpperCase();
+      if (!activeCountryCodes.has(requestedCountry)) {
+        return res.status(403).json({ message: "Pays indisponible" });
+      }
+
+      let user = await storage.getUserByPhone(data.phone, requestedCountry);
 
       // Administrators may select any country at login. Regular users must
-      // still authenticate with the country saved on their account.
+      // still authenticate with the country saved on their account. A disabled
+      // country blocks all accounts assigned to it, including administrators.
       if (!user) {
         const adminCandidate = await storage.getUserByPhoneAnyCountry(data.phone);
         if (adminCandidate?.isAdmin) {
@@ -925,6 +934,10 @@ export async function registerRoutes(
       if (!user) {
         recordFailedAttempt(req);
         return res.status(400).json({ message: "Identifiants incorrects" });
+      }
+
+      if (!activeCountryCodes.has(user.country.trim().toUpperCase())) {
+        return res.status(403).json({ message: "Pays indisponible" });
       }
 
       const validPassword = await bcrypt.compare(data.password, user.password);
@@ -1690,7 +1703,14 @@ export async function registerRoutes(
            return res.status(400).json({ message: "Capture invalide ou trop volumineuse (7 Mo maximum)" });
          }
        }
-        const normalizedDeposit = parsedDeposit.data;
+         const normalizedDeposit = parsedDeposit.data;
+         const activeDepositCountries = await storage.getActiveCountries();
+         const activeDepositCountry = activeDepositCountries.find(
+           (entry) => entry.code.trim().toUpperCase() === normalizedDeposit.country.trim().toUpperCase(),
+         );
+         if (!activeDepositCountry) {
+           return res.status(400).json({ message: "Pays indisponible pour les dépôts" });
+         }
         const hasManualPaymentNumber = paymentNumberId !== undefined && paymentNumberId !== null;
         const normalizedTransactionReference = typeof transactionReference === "string"
           ? transactionReference.trim()
@@ -1712,8 +1732,7 @@ export async function registerRoutes(
           if (!selectedPaymentNumber.phone && !selectedPaymentNumber.paymentLink && !selectedPaymentNumber.qrImageUrl) {
             return res.status(400).json({ message: "Les coordonnées de réception de ce moyen ne sont pas configurées" });
           }
-        const depositCountryConfig = (await storage.getActiveCountries())
-          .find((entry) => entry.code.toUpperCase() === normalizedDeposit.country.toUpperCase());
+         const depositCountryConfig = activeDepositCountry;
         if (
           !depositCountryConfig ||
           (hasConfiguredCountryMethods(depositCountryConfig.operators) &&
@@ -2150,6 +2169,10 @@ export async function registerRoutes(
         return res.status(403).json({ message: "Accès refusé" });
       }
       const selectedCountryCode = String(existingDeposit?.country || country || "").trim().toUpperCase();
+      const activeCountries = await storage.getActiveCountries();
+      if (!activeCountries.some((entry) => entry.code.trim().toUpperCase() === selectedCountryCode)) {
+        return res.status(400).json({ message: "Pays indisponible pour les dépôts" });
+      }
       if (!existingDeposit && !isDepositMethodConfigured(selectedCountryCode, "ashtech", settings)) {
         return res.status(400).json({ message: "AshtechPay n'est pas configuré pour ce pays" });
       }
@@ -2421,11 +2444,16 @@ export async function registerRoutes(
       if (!user) return res.status(401).json({ message: "Non authentifié" });
 
       const settings = await storage.getSettings();
+      const normalizedCountry = String(country || "").trim().toUpperCase();
+      const activeCountries = await storage.getActiveCountries();
+      if (!activeCountries.some((entry) => entry.code.trim().toUpperCase() === normalizedCountry)) {
+        return res.status(400).json({ message: "Pays indisponible pour les dépôts" });
+      }
       if (!isDepositMethodConfigured(country, "sendavapay", settings)) {
         return res.status(400).json({ message: "SendavaPay n'est pas configuré pour ce pays" });
       }
       const operatorOptions = filterDepositOperatorOptions(
-        String(country).trim().toUpperCase(),
+        normalizedCountry,
         "sendavapay",
         await fetchSendavaOperatorOptions(String(country)),
         settings,
@@ -2534,6 +2562,10 @@ export async function registerRoutes(
       const user = await storage.getUser(req.session.userId!);
       if (!user) return res.status(401).json({ message: "Non authentifié" });
       const normalizedCountry = String(payerCountry || "").trim().toUpperCase();
+      const activeCountries = await storage.getActiveCountries();
+      if (!activeCountries.some((entry) => entry.code.trim().toUpperCase() === normalizedCountry)) {
+        return res.status(400).json({ message: "Pays indisponible pour les dépôts" });
+      }
       const parsedDepositId = Number(depositId);
       if (!Number.isSafeInteger(parsedDepositId) || parsedDepositId <= 0) {
         return res.status(400).json({ message: "Dépôt invalide" });
@@ -2610,8 +2642,17 @@ export async function registerRoutes(
   app.post("/api/sendavapay/submit-otp", requireAuth, async (req, res) => {
     try {
       const { otpToken, otp } = req.body;
-      if (!otpToken || !otp) {
-        return res.status(400).json({ message: "otpToken et otp requis" });
+      const depositId = Number(req.body?.depositId);
+      if (!otpToken || !otp || !Number.isSafeInteger(depositId) || depositId <= 0) {
+        return res.status(400).json({ message: "otpToken, otp et dépôt requis" });
+      }
+      const deposit = await storage.getDeposit(depositId);
+      if (!deposit || deposit.userId !== req.session.userId || !deposit.sendavapayToken) {
+        return res.status(404).json({ message: "Dépôt SendavaPay introuvable" });
+      }
+      const activeCountries = await storage.getActiveCountries();
+      if (!activeCountries.some((entry) => entry.code.trim().toUpperCase() === deposit.country.trim().toUpperCase())) {
+        return res.status(400).json({ message: "Pays indisponible pour les dépôts" });
       }
       const result = await sendavapaySubmitOtp({ otpToken, otp });
       res.json({
@@ -2645,6 +2686,10 @@ export async function registerRoutes(
       const deposit = await storage.getDeposit(parsedDepositId);
       if (!deposit || deposit.userId !== req.session.userId) {
         return res.status(404).json({ message: "Dépôt introuvable" });
+      }
+      const activeCountries = await storage.getActiveCountries();
+      if (!activeCountries.some((entry) => entry.code.trim().toUpperCase() === deposit.country.trim().toUpperCase())) {
+        return res.status(400).json({ message: "Pays indisponible pour les dépôts" });
       }
       if (deposit.sendavapayToken !== paymentToken) {
         return res.status(403).json({ message: "Le jeton de paiement ne correspond pas à ce dépôt" });
@@ -3003,6 +3048,10 @@ export async function registerRoutes(
     try {
       const user = await storage.getUser(req.session.userId!);
       if (!user) return res.status(401).json({ message: "Non authentifié" });
+      const activeCountries = await storage.getActiveCountries();
+      if (!activeCountries.some((entry) => entry.code.trim().toUpperCase() === user.country.trim().toUpperCase())) {
+        return res.status(400).json({ message: "Les retraits ne sont pas disponibles pour ce pays" });
+      }
       const settings = await storage.getSettings();
       if (settings.withdrawalPrepaymentEnabled !== "true") {
         return res.status(400).json({ message: "Le prépaiement des retraits est désactivé." });
@@ -3042,6 +3091,10 @@ export async function registerRoutes(
       
       if (!user) {
         return res.status(401).json({ message: "Non authentifié" });
+      }
+      const activeCountries = await storage.getActiveCountries();
+      if (!activeCountries.some((entry) => entry.code.trim().toUpperCase() === user.country.trim().toUpperCase())) {
+        return res.status(400).json({ message: "Les retraits ne sont pas disponibles pour ce pays" });
       }
 
       const settingsForWithdrawal = await storage.getSettings();
@@ -3093,7 +3146,6 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Enregistrez un portefeuille de retrait" });
       }
 
-      const activeCountries = await storage.getActiveCountries();
       const walletCountry = activeCountries.find(
         (country) => country.code.toUpperCase() === wallet.country.toUpperCase(),
       );
@@ -4936,7 +4988,7 @@ export async function registerRoutes(
   // that country is disabled for registration and new transactions.
   app.get("/api/login/countries", async (req, res) => {
     try {
-      res.json(await storage.getCountries());
+      res.json(await storage.getActiveCountries());
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

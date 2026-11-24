@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { FALLBACK_API_COUNTRIES, type ApiCountry } from "@/lib/countries";
+import type { ApiCountry } from "@/lib/countries";
 import { Loader2, Search, X } from "lucide-react";
 
 interface CountrySelectorProps {
@@ -10,7 +10,6 @@ interface CountrySelectorProps {
   selectedCountryCode?: string;
   allowedCountryCodes?: readonly string[];
   excludedCountryCodes?: readonly string[];
-  includeInactive?: boolean;
 }
 
 function CountryFlag({ code }: { code: string }) {
@@ -75,7 +74,6 @@ export function CountrySelector({
   selectedCountryCode,
   allowedCountryCodes,
   excludedCountryCodes = [],
-  includeInactive = false,
 }: CountrySelectorProps) {
   const [search, setSearch] = useState("");
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -84,7 +82,7 @@ export function CountrySelector({
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
   const { data: apiCountries, isLoading, isError } = useQuery<ApiCountry[]>({
-    queryKey: [includeInactive ? "/api/login/countries" : "/api/countries"],
+    queryKey: ["/api/countries"],
     enabled: open,
   });
 
@@ -130,14 +128,14 @@ export function CountrySelector({
     onClose();
   };
 
-  const countrySource = isError ? FALLBACK_API_COUNTRIES : apiCountries || [];
+  const countrySource = apiCountries || [];
   const allowedCodes = allowedCountryCodes
     ? new Set(allowedCountryCodes.map(code => code.toUpperCase()))
     : null;
   const excludedCodes = new Set(excludedCountryCodes.map(code => code.toUpperCase()));
   const countries = countrySource
     .filter(c =>
-      (includeInactive || c.isActive) &&
+      c.isActive &&
       (!allowedCodes || allowedCodes.has(c.code.toUpperCase())) &&
       !excludedCodes.has(c.code.toUpperCase()),
     )
@@ -193,7 +191,7 @@ export function CountrySelector({
               >
                 <CountryFlag code={country.code} />
                 <span className="country-picker-name">
-                  {country.name}{includeInactive && !country.isActive ? " (connexion uniquement)" : ""}
+                  {country.name}
                 </span>
                 <span className="country-picker-prefix">+{country.phonePrefix}</span>
               </button>
@@ -201,7 +199,7 @@ export function CountrySelector({
           })}
           {!isLoading && isError && (
             <p className="country-picker-empty" role="status">
-              Liste locale temporaire : le serveur des pays ne répond pas.
+              Impossible de vérifier les pays disponibles. Réessayez plus tard.
             </p>
           )}
           {!isLoading && countries.length === 0 && <p className="country-picker-empty">{search ? "Aucun résultat" : "Aucun pays disponible"}</p>}

@@ -788,6 +788,7 @@ export default function DepositPage() {
       const res = await apiRequest("POST", "/api/sendavapay/submit-otp", {
         otpToken: svOtpToken,
         otp: svOtp,
+        depositId: svDepositId,
       });
       if (!res.ok) {
         const d = await res.json();

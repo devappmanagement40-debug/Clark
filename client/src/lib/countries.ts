@@ -7,8 +7,8 @@ export function isAuthCountryAllowed(countryCode: string): boolean {
   return !AUTH_HIDDEN_COUNTRY_CODES.includes(countryCode.toUpperCase());
 }
 
-// The API remains authoritative. These bootstrap entries are used only when its
-// request fails so public country pickers do not become unusable during an outage.
+// Static entries remain for compatibility labels and formatting only. Public
+// country pickers rely on the API and fail closed when it is unavailable.
 export const COUNTRIES: Array<{
   code: string;
   name: string;
@@ -53,22 +53,12 @@ export type ApiCountry = {
   isActive: boolean;
 };
 
-export const FALLBACK_API_COUNTRIES: ApiCountry[] = FALLBACK_COUNTRIES.map((country, index) => ({
-  id: index + 1,
-  code: country.code,
-  name: country.name,
-  currency: country.currency,
-  phonePrefix: country.phonePrefix,
-  operators: JSON.stringify(country.operators),
-  withdrawalMethods: JSON.stringify(country.withdrawalMethods),
-  isActive: true,
-}));
-
 export function getCountriesForDisplay(
   apiCountries: ApiCountry[] | undefined,
   apiFailed = false,
 ): ApiCountry[] {
-  return apiFailed ? FALLBACK_API_COUNTRIES : apiCountries ?? [];
+  if (apiFailed || !apiCountries) return [];
+  return apiCountries.filter((country) => country.isActive);
 }
 
 export function parseOperators(operatorsJson: string): string[] {

@@ -107,6 +107,7 @@ export default function RegisterPage() {
       if (c) return { phonePrefix: c.phonePrefix, name: c.name };
       return null;
     }
+    if (!isUiPreview) return null;
     const f = FALLBACK_COUNTRIES.find(fc =>
       fc.code === selectedCountry && isAuthCountryAllowed(fc.code),
     );
@@ -321,7 +322,7 @@ export default function RegisterPage() {
               {demoOtpError && <p role="alert" className="auth-error">{demoOtpError}</p>}
             </div>
 
-            <button type="submit" disabled={isLoading} className="auth-submit" data-testid="button-register">
+            <button type="submit" disabled={isLoading || !countryData} className="auth-submit" data-testid="button-register">
               {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : "S’inscrire"}
             </button>
             <button type="button" className="auth-switch" onClick={() => navigate("/login")} data-testid="link-login">J’ai déjà un compte</button>
